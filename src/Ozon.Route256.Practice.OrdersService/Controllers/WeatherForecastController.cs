@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Ozon.Route256.Practice.OrdersService.Services;
 
 namespace Ozon.Route256.Practice.OrdersService.Controllers;
 
@@ -6,27 +7,18 @@ namespace Ozon.Route256.Practice.OrdersService.Controllers;
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    private readonly WeatherForecastService _service;
+    
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, WeatherForecastService service)
     {
         _logger = logger;
+        _service = service;
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+        return _service.Get();
     }
 }
