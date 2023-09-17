@@ -1,5 +1,26 @@
 ﻿stages:
+  - build
+  - test
   - build_images
+
+build-projects:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  stage: build
+  script:
+    - dotnet build -c Release
+  only:
+    - merge_requests
+    - master
+  
+test-projects:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  stage: test
+  script:
+    - dotnet test -c Release /p:CollectCoverage=true
+  coverage: /\|\s*Total\s*\|\s*(\d+[,.]\d+%)/
+  only:
+    - merge_requests
+    - master
 
 gateway-service:
   image: docker:latest
