@@ -1,4 +1,4 @@
-﻿stages:
+stages:
   - build
   - test
   - build_images
