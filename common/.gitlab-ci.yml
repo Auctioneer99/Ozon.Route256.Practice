@@ -1,0 +1,43 @@
+stages:
+  - build
+  - test
+  - build_images
+
+build-projects:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  stage: build
+  script:
+    - dotnet build -c Release
+  only:
+    - merge_requests
+    - master
+  
+test-projects:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  stage: test
+  script:
+    - dotnet test -c Release /p:CollectCoverage=true
+  coverage: /\|\s*Total\s*\|\s*(\d+[,.]\d+%)/
+  only:
+    - merge_requests
+    - master
+
+gateway-service:
+  image: docker:latest
+  stage: build_images
+  rules:
+    - when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker buildx create --use
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/kingsbounty99/homework/gateway-service:latest --push ./src/Ozon.Route256.Practice.GatewayService
+
+orders-service:
+  image: docker:latest
+  stage: build_images
+  rules:
+    - when: manual
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker buildx create --use
+    - docker buildx build --provenance false --platform linux/amd64,linux/arm64 -t gitlab-registry.ozon.dev/kingsbounty99/homework/orders-service:latest --push ./src/Ozon.Route256.Practice.OrdersService
