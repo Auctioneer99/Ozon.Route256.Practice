@@ -1,22 +1,18 @@
-var builder = WebApplication.CreateBuilder(args);
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Ozon.Route256.Practice.OrdersService;
 
+await Host.CreateDefaultBuilder(args)
+    .ConfigureWebHostDefaults(x => x
+        .UseStartup<Startup>()
+        .ConfigureKestrel(options =>
+        {
+            var grpcPort = int.Parse(Environment.GetEnvironmentVariable("ROUTE256_GRPC_PORT")!);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment() || true)
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+            options.Listen(
+                IPAddress.Any,
+                grpcPort,
+                listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+        }))
+    .Build()
+    .RunAsync();

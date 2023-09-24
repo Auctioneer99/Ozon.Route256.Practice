@@ -1,0 +1,126 @@
+﻿syntax = "proto3";
+option csharp_namespace = "Ozon.Route256.Practice.OrdersService";
+
+import "google/protobuf/timestamp.proto";
+
+service OrderService {
+  rpc CancelOrder(CancelRequest) returns (CancelResponse);
+  rpc GetStatusById(GetStatusByIdRequest) returns (GetStatusByIdResponse);
+  rpc GetRegions(Empty) returns (GetRegionsResponse);
+  rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse);
+  rpc GetOrdersAggregation(GetOrdersAggregationRequest) returns (GetOrdersAggregationResponse);
+  rpc GetClientOrders(GetClientOrdersRequest) returns (GetClientOrdersResponse);
+}
+
+message Empty {}
+
+message CancelRequest {
+  int64 Id = 1;
+}
+
+message CancelResponse {
+  bool IsSuccess = 1;
+  string Error = 2;
+}
+
+message GetStatusByIdRequest {
+  int64 Id = 1;
+}
+
+message GetStatusByIdResponse {
+  Order.OrderState State = 1;
+}
+
+message GetRegionsResponse {
+  repeated string Regions = 1;
+}
+
+message GetOrdersRequest {
+  string RegionFilter = 1;
+  Order.OrderType OrderTypeFilter = 2;
+  PagingRequest Page = 3;
+  SortType Sort = 4;
+  
+  enum SortType {
+    NONE = 0;
+    ASCENDING = 1;
+    DESCENDING = 2;
+  }
+}
+
+message GetOrdersResponse {
+  repeated Order Orders = 1;
+}
+
+message GetOrdersAggregationRequest {
+  google.protobuf.Timestamp FromDate = 1;
+  repeated string Regions = 2;
+}
+
+message GetOrdersAggregationResponse {
+  repeated GetOrdersAggregationResponseEntry Aggregations = 1;
+  
+  message GetOrdersAggregationResponseEntry {
+    string Region = 1;
+    int32 OrdersCount = 2;
+    double TotalOrdersSum = 3;
+    double TotalOrdersWeight = 4;
+    int32 UniqueClientsCount = 5;
+  }
+}
+
+message GetClientOrdersRequest {
+  int64 ClientId = 1;
+  google.protobuf.Timestamp From = 2;
+  PagingRequest Page = 3;
+}
+
+message GetClientOrdersResponse {
+  repeated Order Orders = 1;
+}
+
+message PagingRequest {
+  int64 SkipCount = 1;
+  int64 TakeCount = 2;
+}
+
+message Order {
+  int64 Id = 1;
+  int32 Count = 2;
+  double TotalSum = 3;
+  double TotalWeight = 4;
+  OrderType Type = 5;
+  google.protobuf.Timestamp CreatedAt = 6;
+  string RegionFrom = 7;
+  OrderState State = 8;
+  string ClientName = 9;
+  Address OrderAddress = 10;
+  string Phone = 11;
+  
+  enum OrderType 
+  {
+    UNDEFINED_TYPE = 0;
+    FIRST_TYPE = 1;
+    SECOND_TYPE = 2;
+  }
+  
+  enum OrderState
+  {
+    UNDEFINED_STATE = 0;
+    CREATED = 1;
+    SENT_TO_CUSTOMER = 2;
+    DELIVERED = 3;
+    LOST = 4;
+    CANCELLED = 5;
+  }
+
+  message Address {
+    string Region = 1;
+    string City = 2;
+    string Street = 3;
+    string Building = 4;
+    string Apartment = 5;
+    double Latitude = 6;
+    double Longitude = 7;
+  }
+}
