@@ -5,7 +5,7 @@ namespace Ozon.Route256.Practice.GatewayService.Models;
 public class OrdersRequest
 {
     [JsonProperty("regionFilter")]
-    public string RegionFilter { get; set; }
+    public string[] RegionFilter { get; set; }
     
     [JsonProperty("orderTypeFilter")]
     public OrderType OrderTypeFilter { get; set; }
@@ -15,4 +15,7 @@ public class OrdersRequest
 
     [JsonProperty("sort")]
     public SortType Sort { get; set; }
+    
+    [JsonProperty("sortField")]
+    public OrderFilterField SortField { get; set; }
 }

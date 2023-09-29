@@ -21,7 +21,8 @@ public class OrderProfile : Profile
         CreateMap<OrdersService.GetRegionsResponse, RegionsResponse>()
             .ForMember(d => d.Regions, opt => opt.MapFrom(o => o.Regions.Map()));
 
-        CreateMap<OrdersRequest, OrdersService.GetOrdersRequest>();
+        CreateMap<OrdersRequest, OrdersService.GetOrdersRequest>()
+            .ForMember(d => d.RegionFilter, opt => opt.MapFrom(o => o.RegionFilter.ToRepeated()));
         CreateMap<OrdersService.GetOrdersResponse, OrdersResponse>()
             .ForMember(d => d.Orders, opt => opt.MapFrom(o => o.Orders.Map()));
         

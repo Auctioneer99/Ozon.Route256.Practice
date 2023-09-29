@@ -36,16 +36,17 @@ message GetRegionsResponse {
 }
 
 message GetOrdersRequest {
-  string region_filter = 1;
+  repeated string region_filter = 1;
   Order.OrderType order_type_filter = 2;
   PagingRequest page = 3;
   SortType sort = 4;
-  
-  enum SortType {
-    NONE = 0;
-    ASCENDING = 1;
-    DESCENDING = 2;
-  }
+  Order.SortField sort_field = 5;
+}
+
+enum SortType {
+  NONE = 0;
+  ASCENDING = 1;
+  DESCENDING = 2;
 }
 
 message GetOrdersResponse {
@@ -122,5 +123,20 @@ message Order {
     string apartment = 5;
     double latitude = 6;
     double longitude = 7;
+  }
+
+  enum SortField {
+    NONE_FIELD = 0;
+    ID = 1;
+    COUNT = 2;
+    TOTAL_SUM = 3;
+    TOTAL_WEIGHT = 4;
+    ORDER_TYPE = 5;
+    CREATED_AT = 6;
+    REGION_FROM = 7;
+    ORDER_STATE = 8;
+    CLIENT_NAME = 9;
+    ORDER_ADDRESS = 10;
+    PHONE = 11;
   }
 }

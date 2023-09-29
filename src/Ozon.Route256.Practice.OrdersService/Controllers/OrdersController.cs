@@ -67,9 +67,19 @@ public class OrdersController : Orders.OrdersBase
 
     public override Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
     {
-        if (_regionService.HasRegion(request.RegionFilter) == false)
+        var notFoundRegions = new HashSet<string>();
+        
+        foreach (var region in request.RegionFilter)
         {
-            throw new NotExistsException($"Регион {request.RegionFilter} не существует");
+            if (_regionService.HasRegion(region) == false)
+            {
+                notFoundRegions.Add(region);
+            }
+        }
+
+        if (notFoundRegions.Count > 0)
+        {
+            throw new NotExistsException($"Регионы ({string.Join(", ", notFoundRegions)}) не существуют");
         }
         
         var result = new GetOrdersResponse();
