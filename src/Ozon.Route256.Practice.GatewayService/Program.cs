@@ -1,20 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+using System.Net;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Ozon.Route256.Practice.GatewayService;
 
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment() || true)
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+await Host.CreateDefaultBuilder(args)
+    .ConfigureWebHostDefaults(x => x.UseStartup<Startup>().ConfigureKestrel(options =>
+    {
+        var httpPort = int.Parse(Environment.GetEnvironmentVariable("ROUTE256_HTTP_PORT")!);
+        options.Listen(
+            IPAddress.Any, 
+            httpPort,
+            listenOptions => listenOptions.Protocols = HttpProtocols.Http1);
+    }))
+    .Build()
+    .RunAsync();
