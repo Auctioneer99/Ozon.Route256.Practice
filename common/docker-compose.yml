@@ -23,6 +23,7 @@ services:
     container_name: "orders-service-1"
     environment: 
       "ROUTE256_GRPC_PORT": "81"
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
     ports:
       - "8180:81"
   
@@ -33,6 +34,7 @@ services:
     container_name: "orders-service-2"
     environment:
       "ROUTE256_GRPC_PORT": "81"
+      "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
     ports:
       - "8280:81"
   
