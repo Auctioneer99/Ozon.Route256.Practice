@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Services;
 
 namespace Ozon.Route256.Practice.OrdersService.Controllers;
 
-public class OrdersController : OrderService.OrderServiceBase
+public class OrdersController : Orders.OrdersBase
 {
     private readonly RegionService _regionService;
 

@@ -12,11 +12,11 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 [Route("[controller]")]
 public class OrderController : ControllerBase
 {
-    private readonly OrdersService.OrderService.OrderServiceClient _orderClient;
+    private readonly Orders.OrdersClient _orderClient;
     private readonly IMapper _mapper;
     private readonly ILogger<OrderController> _logger;
 
-    public OrderController(OrdersService.OrderService.OrderServiceClient orderClient, IMapper mapper, ILogger<OrderController> logger)
+    public OrderController(Orders.OrdersClient orderClient, IMapper mapper, ILogger<OrderController> logger)
     {
         _orderClient = orderClient;
         _mapper = mapper;

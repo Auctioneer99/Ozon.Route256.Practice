@@ -38,7 +38,7 @@ public sealed class Startup
         services.AddSingleton<ResolverFactory>(factory);
 
         services
-            .AddGrpcClient<OrderService.OrderServiceClient>(options => options.Address = new Uri("static://order-service"))
+            .AddGrpcClient<Orders.OrdersClient>(options => options.Address = new Uri("static://order-service"))
             .ConfigureChannel(x =>
             {
                 x.Credentials = ChannelCredentials.Insecure;
