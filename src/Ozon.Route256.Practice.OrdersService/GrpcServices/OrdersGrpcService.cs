@@ -4,11 +4,11 @@ using Ozon.Route256.Practice.OrdersService.Services;
 
 namespace Ozon.Route256.Practice.OrdersService.Controllers;
 
-public sealed class OrdersController : Orders.OrdersBase
+public sealed class OrdersGrpcService : Orders.OrdersBase
 {
     private readonly RegionService _regionService;
 
-    public OrdersController(RegionService regionService)
+    public OrdersGrpcService(RegionService regionService)
     {
         _regionService = regionService;
     }

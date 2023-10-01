@@ -31,7 +31,7 @@ public sealed class Startup
         services.AddHostedService<SdConsumerHostedService>();
 
         services.AddTransient<RegionService>();
-        services.AddTransient<OrdersController>();
+        services.AddTransient<OrdersGrpcService>();
         
         services.AddGrpc(x => x.Interceptors.Add<LoggerInterceptor>());
         services.AddGrpcReflection();
@@ -44,7 +44,7 @@ public sealed class Startup
         app.UseRouting();
         app.UseEndpoints(x =>
         {
-            x.MapGrpcService<OrdersController>();
+            x.MapGrpcService<OrdersGrpcService>();
             x.MapGrpcReflectionService();
         });
     }
