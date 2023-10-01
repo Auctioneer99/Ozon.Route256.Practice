@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
+using Ozon.Route256.Practice.GatewayService.Services.Mapper;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers;
 
@@ -10,14 +9,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 public sealed class CustomerController : ControllerBase
 {
     private readonly Customers.Customers.CustomersClient _customersClient;
-    private readonly IMapper _mapper;
-    private readonly ILogger<OrderController> _logger;
 
-    public CustomerController(Customers.Customers.CustomersClient customersClient, IMapper mapper, ILogger<OrderController> logger)
+    public CustomerController(Customers.Customers.CustomersClient customersClient)
     {
         _customersClient = customersClient;
-        _mapper = mapper;
-        _logger = logger;
     }
 
     [HttpGet]
@@ -25,6 +20,6 @@ public sealed class CustomerController : ControllerBase
     public async Task<CustomersResponse> GetCustomers()
     {
         var response = await _customersClient.GetCustomersAsync(new Google.Protobuf.WellKnownTypes.Empty());
-        return _mapper.Map<CustomersResponse>(response);
+        return response.ToDto();
     }
 }

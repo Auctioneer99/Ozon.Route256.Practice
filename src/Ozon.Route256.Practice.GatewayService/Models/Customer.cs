@@ -22,6 +22,6 @@ public sealed class Customer
     [JsonProperty("defaultAddress")]
     public Address DefaultAddress { get; init; }
     
-    [JsonProperty("address")]
-    public Address[] Address { get; init; }
+    [JsonProperty("addresses")]
+    public Address[] Addresses { get; init; }
 }

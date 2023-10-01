@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
+using Ozon.Route256.Practice.GatewayService.Services.Mapper;
 using Ozon.Route256.Practice.OrdersService;
 using CancelRequest = Ozon.Route256.Practice.GatewayService.Models.CancelRequest;
 using CancelResponse = Ozon.Route256.Practice.GatewayService.Models.CancelResponse;
@@ -13,12 +12,10 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 public sealed class OrderController : ControllerBase
 {
     private readonly Orders.OrdersClient _orderClient;
-    private readonly IMapper _mapper;
 
-    public OrderController(Orders.OrdersClient orderClient, IMapper mapper)
+    public OrderController(Orders.OrdersClient orderClient)
     {
         _orderClient = orderClient;
-        _mapper = mapper;
     }
 
     [HttpPut("cancel")]
@@ -27,7 +24,7 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(CancelResponse), StatusCodes.Status404NotFound)]
     public async Task CancelOrder([FromBody] CancelRequest request)
     {
-        await _orderClient.CancelOrderAsync(_mapper.Map<OrdersService.CancelRequest>(request));
+        await _orderClient.CancelOrderAsync(request.FromDto());
     }
 
     [HttpGet("status/{orderId}")]
@@ -36,7 +33,7 @@ public sealed class OrderController : ControllerBase
     public async Task<StatusResponse> GetStatus([FromRoute(Name = "orderId")] long orderId)
     {
         var response =  await _orderClient.GetStatusByIdAsync(new OrdersService.GetStatusByIdRequest() { Id = orderId });
-        return _mapper.Map<StatusResponse>(response);
+        return response.ToDto();
     }
 
     [HttpGet("regions")]
@@ -44,7 +41,7 @@ public sealed class OrderController : ControllerBase
     public async Task<RegionsResponse> GetRegions()
     {
         var response = await _orderClient.GetRegionsAsync(new OrdersService.Empty());
-        return _mapper.Map<RegionsResponse>(response);
+        return response.ToDto();
     }
 
     [HttpGet]
@@ -52,8 +49,8 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<OrdersResponse> GetOrders([FromQuery] OrdersRequest request)
     {
-        var response = await _orderClient.GetOrdersAsync(_mapper.Map<GetOrdersRequest>(request));
-        return _mapper.Map<OrdersResponse>(response);
+        var response = await _orderClient.GetOrdersAsync(request.FromDto());
+        return response.ToDto();
     }
 
     [HttpPost("aggregation")]
@@ -61,8 +58,8 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<OrdersAggregationResponse> GetOrdersAggregation([FromBody] OrdersAggregationRequest request)
     {
-        var response = await _orderClient.GetOrdersAggregationAsync(_mapper.Map<GetOrdersAggregationRequest>(request));
-        return _mapper.Map<OrdersAggregationResponse>(response);
+        var response = await _orderClient.GetOrdersAggregationAsync(request.FromDto());
+        return response.ToDto();
     }
 
     [HttpGet("clientOrders")]
@@ -70,7 +67,7 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<OrdersResponse> GetClientOrders([FromQuery] ClientOrdersRequest request)
     {
-        var response = await _orderClient.GetClientOrdersAsync(_mapper.Map<GetClientOrdersRequest>(request));
-        return _mapper.Map<OrdersResponse>(response);
+        var response = await _orderClient.GetClientOrdersAsync(request.FromDto());
+        return response.ToDto();
     }
 }

@@ -55,8 +55,6 @@ public sealed class Startup
         
         services.AddTransient<CustomerController>();
         services.AddTransient<OrderController>();
-
-        services.AddAutoMapper(typeof(Program));
         
         services.AddSwaggerGen();
         services.AddSwaggerGenNewtonsoftSupport();
