@@ -5,11 +5,11 @@ namespace Ozon.Route256.Practice.GatewayService.Models;
 public class ClientOrdersRequest
 {
     [JsonProperty("clientId")]
-    public long ClientId { get; set; }
+    public long ClientId { get; init; }
     
     [JsonProperty("from")]
-    public DateTime From { get; set; }
+    public DateTime From { get; init; }
     
     [JsonProperty("page")]
-    public PagingRequest Page { get; set; }
+    public PagingRequest Page { get; init; }
 }

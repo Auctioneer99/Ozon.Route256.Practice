@@ -5,5 +5,5 @@ namespace Ozon.Route256.Practice.GatewayService.Models;
 public class RegionsResponse
 {
     [JsonProperty("regions")]
-    public string[] Regions { get; set; }
+    public string[] Regions { get; init; }
 }

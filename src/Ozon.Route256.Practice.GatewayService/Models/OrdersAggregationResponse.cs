@@ -5,23 +5,23 @@ namespace Ozon.Route256.Practice.GatewayService.Models;
 public class OrdersAggregationResponse
 {
     [JsonProperty("aggregations")]
-    public OrdersAggregationResponseEntry[] Aggregations { get; set; }
+    public OrdersAggregationResponseEntry[] Aggregations { get; init; }
 
     public class OrdersAggregationResponseEntry
     {
         [JsonProperty("region")]
-        public string Region { get; set; }
+        public string Region { get; init; }
         
         [JsonProperty("ordersCount")]
-        public int OrdersCount { get; set; }
+        public int OrdersCount { get; init; }
         
         [JsonProperty("totalOrdersSum")]
-        public double TotalOrdersSum { get; set; }
+        public double TotalOrdersSum { get; init; }
         
         [JsonProperty("totalOrdersWeight")]
-        public double TotalOrdersWeight { get; set; }
+        public double TotalOrdersWeight { get; init; }
         
         [JsonProperty("uniqueClientsCount")]
-        public int UniqueClientsCount { get; set; }
+        public int UniqueClientsCount { get; init; }
     }
 }
