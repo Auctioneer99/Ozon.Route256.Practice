@@ -22,22 +22,9 @@ public sealed class CustomerController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(CustomersResponse), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCustomers()
+    public async Task<CustomersResponse> GetCustomers()
     {
-        try
-        {
-            var response = await _customersClient.GetCustomersAsync(new Google.Protobuf.WellKnownTypes.Empty());
-            
-            return Ok(_mapper.Map<CustomersResponse>(response));
-        }
-        catch (RpcException e)
-        {
-            _logger.LogError(e, "gRPC error:" + e.Message);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Inner error:" + e.Message);
-        }
-        return StatusCode(StatusCodes.Status500InternalServerError);
+        var response = await _customersClient.GetCustomersAsync(new Google.Protobuf.WellKnownTypes.Empty());
+        return _mapper.Map<CustomersResponse>(response);
     }
 }

@@ -2,6 +2,7 @@
 using Grpc.Net.Client.Balancer;
 using Grpc.Net.Client.Configuration;
 using Ozon.Route256.Practice.GatewayService.Controllers;
+using Ozon.Route256.Practice.GatewayService.Middleware;
 using Ozon.Route256.Practice.OrdersService;
 
 namespace Ozon.Route256.Practice.GatewayService;
@@ -62,10 +63,17 @@ public sealed class Startup
         
         services.AddControllers().AddNewtonsoftJson();
         services.AddEndpointsApiExplorer();
+
+        services.AddSingleton<ExceptionMiddleware>();
     }
 
     public void Configure(IApplicationBuilder app)
     {
+        app.UseExceptionHandler(new ExceptionHandlerOptions { 
+                ExceptionHandler = app.ApplicationServices.GetRequiredService<ExceptionMiddleware>().Invoke 
+            }
+        );
+        
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseRouting();

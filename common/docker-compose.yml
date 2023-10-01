@@ -10,7 +10,7 @@ services:
     container_name: "gateway-service"
     environment:
       - "ROUTE256_ORDER_SERVICE_ADDRESSES=orders-service-1:81;orders-service-2:81"
-      - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=customer-service:81"
+      - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
       - "ROUTE256_HTTP_PORT=80"
     ports:
       - "8080:80"
