@@ -23,15 +23,11 @@ public sealed class Startup
             .Select(x => x.Split(":"))
             .Select(x => new BalancerAddress(x[0], int.Parse(x[1])))
             .ToArray();
-        var customerAddressRaw = _configuration.GetValue<string>("ROUTE256_CUSTOMER_SERVICE_ADDRESS")
-            .Split(":");
-        var customerAddress = new List<BalancerAddress>() { new BalancerAddress(customerAddressRaw[0], int.Parse(customerAddressRaw[1])) };
         
         var factory = new StaticResolverFactory(address =>
             address.Host switch
             {
                 "order-service" => balancerAddresses,
-                "customer-service" => customerAddress,
                 _ => Array.Empty<BalancerAddress>()
             }
         );
@@ -49,7 +45,7 @@ public sealed class Startup
             });
 
         services.AddGrpcClient<Customers.Customers.CustomersClient>(options =>
-            options.Address = new Uri("static://customer-service"))
+            options.Address = new Uri(_configuration.GetValue<string>("ROUTE256_CUSTOMER_SERVICE_ADDRESS")))
             .ConfigureChannel(x =>
             {
                 x.Credentials = ChannelCredentials.Insecure;
