@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class ErrorResponse
+public sealed class ErrorResponse
 {
     [JsonProperty("error")]
     public string Error { get; init; }

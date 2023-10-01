@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class OrdersRequest
+public sealed class OrdersRequest
 {
     [JsonProperty("regionFilter")]
     public string[] RegionFilter { get; init; }

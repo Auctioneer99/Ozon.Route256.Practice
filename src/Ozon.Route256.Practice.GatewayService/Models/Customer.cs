@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class Customer
+public sealed class Customer
 {
     [JsonProperty("id")]
     public int Id { get; init; }

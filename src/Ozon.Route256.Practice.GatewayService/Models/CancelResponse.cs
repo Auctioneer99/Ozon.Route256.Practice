@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class CancelResponse
+public sealed class CancelResponse
 {
     [JsonProperty("isSuccess")]
     public bool IsSuccess { get; init; }

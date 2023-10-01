@@ -7,7 +7,7 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CustomerController : ControllerBase
+public sealed class CustomerController : ControllerBase
 {
     private readonly Customers.Customers.CustomersClient _customersClient;
     private readonly IMapper _mapper;

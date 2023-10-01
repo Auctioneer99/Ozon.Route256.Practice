@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.OrdersService.Exceptions;
 
-public class InvalidArgumentException : Exception
+public sealed class InvalidArgumentException : Exception
 {
     public InvalidArgumentException()
     {

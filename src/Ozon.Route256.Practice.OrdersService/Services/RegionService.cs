@@ -1,6 +1,6 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services;
 
-public class RegionService
+public sealed class RegionService
 {
     public HashSet<string> GetRegions()
     {

@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class RegionsResponse
+public sealed class RegionsResponse
 {
     [JsonProperty("regions")]
     public string[] Regions { get; init; }

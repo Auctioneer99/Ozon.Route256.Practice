@@ -2,12 +2,12 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class OrdersAggregationResponse
+public sealed class OrdersAggregationResponse
 {
     [JsonProperty("aggregations")]
     public OrdersAggregationResponseEntry[] Aggregations { get; init; }
 
-    public class OrdersAggregationResponseEntry
+    public sealed class OrdersAggregationResponseEntry
     {
         [JsonProperty("region")]
         public string Region { get; init; }

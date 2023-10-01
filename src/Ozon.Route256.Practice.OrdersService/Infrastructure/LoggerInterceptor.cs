@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Exceptions;
 
 namespace Ozon.Route256.Practice.OrdersService.Infrastructure;
 
-public class LoggerInterceptor: Interceptor
+public sealed class LoggerInterceptor: Interceptor
 {
     private readonly ILogger<LoggerInterceptor> _logger;
 

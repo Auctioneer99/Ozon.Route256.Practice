@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.Test;
 
-public class RegionsTest
+public sealed class RegionsTest
 {
     private readonly RegionService _regionService;
     

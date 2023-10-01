@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class StatusResponse
+public sealed class StatusResponse
 {
     [JsonProperty("status")]
     public string Status { get; init; }

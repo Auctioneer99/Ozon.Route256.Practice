@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public class PagingRequest
+public sealed class PagingRequest
 {
     [JsonProperty("skipCount")]
     public long SkipCount { get; init; }

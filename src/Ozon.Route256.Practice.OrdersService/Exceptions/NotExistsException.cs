@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.OrdersService.Exceptions;
 
-public class NotExistsException : Exception
+public sealed class NotExistsException : Exception
 {
     public NotExistsException()
     {
