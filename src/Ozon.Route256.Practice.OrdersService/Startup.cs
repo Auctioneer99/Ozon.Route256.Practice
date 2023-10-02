@@ -2,6 +2,7 @@
 using Ozon.Route256.Practice.OrdersService.Controllers;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.Services;
+using Ozon.Route256.Practice.OrdersService.Services.Validation;
 using Ozon.Route256.Practice.ServiceDiscovery;
 
 namespace Ozon.Route256.Practice.OrdersService;
@@ -33,8 +34,18 @@ public sealed class Startup
         services.AddTransient<RegionService>();
         services.AddTransient<OrdersGrpcService>();
         
-        services.AddGrpc(x => x.Interceptors.Add<LoggerInterceptor>());
+        services.AddGrpc(x =>
+        {
+            x.Interceptors.Add<LoggerInterceptor>();
+            x.Interceptors.Add<ValidatorInterceptor>();
+        });
         services.AddGrpcReflection();
+
+        services.AddTransient<IValidator<GetClientOrdersRequest>, GetClientOrdersRequestValidator>();
+        services.AddTransient<IValidator<GetOrdersAggregationRequest>, GetOrdersAggregationRequestValidator>();
+        services.AddTransient<IValidator<GetOrdersRequest>, GetOrdersRequestValidator>();
+        services.AddTransient<IValidator<GetStatusByIdRequest>, GetStatusByIdRequestValidator>();
+        services.AddTransient<IValidator<CancelRequest>, CancelRequestValidator>();
         
         services.AddEndpointsApiExplorer();
     }

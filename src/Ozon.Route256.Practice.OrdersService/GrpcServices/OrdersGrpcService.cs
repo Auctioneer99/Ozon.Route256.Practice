@@ -86,7 +86,7 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
 
         return Task.FromResult(result);
     }
-
+    
     public override Task<GetOrdersAggregationResponse> GetOrdersAggregation(GetOrdersAggregationRequest request, ServerCallContext context)
     {
         var notFoundRegions = new HashSet<string>();
