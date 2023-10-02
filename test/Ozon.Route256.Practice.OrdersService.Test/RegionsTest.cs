@@ -1,6 +1,6 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Services;
 
-namespace Ozon.Route256.Practice.Test;
+namespace Ozon.Route256.Practice.OrdersService.Test;
 
 public sealed class RegionsTest
 {
@@ -12,7 +12,7 @@ public sealed class RegionsTest
     }
     
     [Fact]
-    public void ShouldFindRURegion()
+    public void ShouldFindRuRegion()
     {
         Assert.True(_regionService.HasRegion("RU"));
     }

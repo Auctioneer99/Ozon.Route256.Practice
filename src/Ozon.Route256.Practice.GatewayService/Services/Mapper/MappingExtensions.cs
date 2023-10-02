@@ -5,24 +5,9 @@ namespace Ozon.Route256.Practice.GatewayService.Services.Mapper;
 
 public static class MappingExtensions
 {
-    public static OrdersService.Order.Types.OrderType Map(this OrderType type)
-    {
-        return (OrdersService.Order.Types.OrderType)type;
-    }
-
-    public static OrdersService.Order.Types.OrderState Map(this OrderState type)
+    public static OrdersService.Order.Types.OrderState FromDto(this OrderState type)
     {
         return (OrdersService.Order.Types.OrderState)type;
-    }
-    
-    public static OrderType Map(this OrdersService.Order.Types.OrderType type)
-    {
-        return (OrderType)type;
-    }
-
-    public static OrderState Map(this OrdersService.Order.Types.OrderState type)
-    {
-        return (OrderState)type;
     }
     
     public static OrdersService.Order FromDto(this Order dto)
@@ -33,10 +18,10 @@ public static class MappingExtensions
             Count = dto.Count,
             TotalSum = dto.TotalSum,
             TotalWeight = dto.TotalWeight,
-            Type = dto.Type.Map(),
+            Type = dto.Type.FromDto(),
             CreatedAt = dto.CreatedAt.ToUniversalTime().ToTimestamp(),
             RegionFrom = dto.RegionFrom,
-            State = dto.State.Map(),
+            State = dto.State.FromDto(),
             ClientName = dto.ClientName,
             OrderAddress = dto.OrderAddress.FromDtoToOrder(),
             Phone = dto.Phone
@@ -133,6 +118,16 @@ public static class MappingExtensions
             Page = dto.Page.FromDto()
         };
     }
+    
+    public static OrderType ToDto(this OrdersService.Order.Types.OrderType type)
+    {
+        return (OrderType)type;
+    }
+
+    public static OrderState ToDto(this OrdersService.Order.Types.OrderState type)
+    {
+        return (OrderState)type;
+    }
 
     public static Address ToDto(this Customers.Address model)
     {
@@ -217,10 +212,10 @@ public static class MappingExtensions
             Count = model.Count,
             TotalSum = model.TotalSum,
             TotalWeight = model.TotalWeight,
-            Type = model.Type.Map(),
+            Type = model.Type.ToDto(),
             CreatedAt = model.CreatedAt.ToDateTime(),
             RegionFrom = model.RegionFrom,
-            State = model.State.Map(),
+            State = model.State.ToDto(),
             ClientName = model.ClientName,
             OrderAddress = model.OrderAddress.ToDto(),
             Phone = model.Phone
