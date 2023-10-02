@@ -5,7 +5,7 @@ using Order = Ozon.Route256.Practice.OrdersService.Order;
 
 namespace Ozon.Route256.Practice.GatewayService.Tests;
 
-public class MappingTest
+public sealed class MappingTest
 {
     [Fact]
     public void OrderTypeTest()

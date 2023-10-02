@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Services.Validation;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
-public class ValidatorTests
+public sealed class ValidatorTests
 {
     private readonly CancelRequestValidator _cancelRequestValidator = new();
     private readonly GetClientOrdersRequestValidator _getClientOrdersRequestValidator = new();
