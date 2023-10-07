@@ -22,7 +22,7 @@ public static class MappingExtensions
             CreatedAt = dto.CreatedAt.ToUniversalTime().ToTimestamp(),
             RegionFrom = dto.RegionFrom,
             State = dto.State.FromDto(),
-            ClientName = dto.ClientName,
+            CustomerName = dto.ClientName,
             OrderAddress = dto.OrderAddress.FromDtoToOrder(),
             Phone = dto.Phone
         };
@@ -109,11 +109,11 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersService.GetClientOrdersRequest FromDto(this ClientOrdersRequest dto)
+    public static OrdersService.GetCustomerOrdersRequest FromDto(this ClientOrdersRequest dto)
     {
-        return new OrdersService.GetClientOrdersRequest
+        return new OrdersService.GetCustomerOrdersRequest
         {
-            ClientId = dto.ClientId,
+            CustomerId = dto.ClientId,
             From = dto.From.ToUniversalTime().ToTimestamp(),
             Page = dto.Page.FromDto()
         };
@@ -216,7 +216,7 @@ public static class MappingExtensions
             CreatedAt = model.CreatedAt.ToDateTime(),
             RegionFrom = model.RegionFrom,
             State = model.State.ToDto(),
-            ClientName = model.ClientName,
+            ClientName = model.CustomerName,
             OrderAddress = model.OrderAddress.ToDto(),
             Phone = model.Phone
         };
@@ -238,7 +238,7 @@ public static class MappingExtensions
             OrdersCount = model.OrdersCount,
             TotalOrdersSum = model.TotalOrdersSum,
             TotalOrdersWeight = model.TotalOrdersWeight,
-            UniqueClientsCount = model.UniqueClientsCount
+            UniqueClientsCount = model.UniqueCustomersCount
         };
     }
     
@@ -250,7 +250,7 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersResponse ToDto(this OrdersService.GetClientOrdersResponse model)
+    public static OrdersResponse ToDto(this OrdersService.GetCustomerOrdersResponse model)
     {
         return new OrdersResponse
         {

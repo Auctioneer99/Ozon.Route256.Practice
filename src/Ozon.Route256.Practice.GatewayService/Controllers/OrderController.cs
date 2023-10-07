@@ -65,9 +65,9 @@ public sealed class OrderController : ControllerBase
     [HttpGet("clientOrders")]
     [ProducesResponseType(typeof(OrdersResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<OrdersResponse> GetClientOrders([FromQuery] ClientOrdersRequest request)
+    public async Task<OrdersResponse> GetCustomerOrders([FromQuery] ClientOrdersRequest request)
     {
-        var response = await _orderClient.GetClientOrdersAsync(request.FromDto());
+        var response = await _orderClient.GetCustomerOrdersAsync(request.FromDto());
         return response.ToDto();
     }
 }

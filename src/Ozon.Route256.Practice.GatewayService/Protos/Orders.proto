@@ -9,7 +9,7 @@ service Orders {
   rpc GetRegions(Empty) returns (GetRegionsResponse);
   rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse);
   rpc GetOrdersAggregation(GetOrdersAggregationRequest) returns (GetOrdersAggregationResponse);
-  rpc GetClientOrders(GetClientOrdersRequest) returns (GetClientOrdersResponse);
+  rpc GetCustomerOrders(GetCustomerOrdersRequest) returns (GetCustomerOrdersResponse);
 }
 
 message Empty {}
@@ -66,17 +66,17 @@ message GetOrdersAggregationResponse {
     int32 orders_count = 2;
     double total_orders_sum = 3;
     double total_orders_weight = 4;
-    int32 unique_clients_count = 5;
+    int32 unique_customers_count = 5;
   }
 }
 
-message GetClientOrdersRequest {
-  int64 client_id = 1;
+message GetCustomerOrdersRequest {
+  int64 customer_id = 1;
   google.protobuf.Timestamp from = 2;
   PagingRequest page = 3;
 }
 
-message GetClientOrdersResponse {
+message GetCustomerOrdersResponse {
   repeated Order orders = 1;
 }
 
@@ -94,7 +94,7 @@ message Order {
   google.protobuf.Timestamp created_at = 6;
   string region_from = 7;
   OrderState state = 8;
-  string client_name = 9;
+  string customer_name = 9;
   Address order_address = 10;
   string phone = 11;
   
@@ -133,10 +133,6 @@ message Order {
     TOTAL_WEIGHT = 4;
     ORDER_TYPE = 5;
     CREATED_AT = 6;
-    REGION_FROM = 7;
-    ORDER_STATE = 8;
-    CLIENT_NAME = 9;
-    ORDER_ADDRESS = 10;
-    PHONE = 11;
+    ORDER_STATE = 7;
   }
 }
