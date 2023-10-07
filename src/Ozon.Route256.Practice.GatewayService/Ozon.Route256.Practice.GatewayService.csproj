@@ -27,7 +27,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="ClientBalancing" />
       <Folder Include="Middleware" />
     </ItemGroup>
 </Project>

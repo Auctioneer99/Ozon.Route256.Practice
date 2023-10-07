@@ -2,10 +2,10 @@
 
 namespace Ozon.Route256.Practice.GatewayService.Models;
 
-public sealed class ClientOrdersRequest
+public sealed class CustomerOrdersRequest
 {
     [JsonProperty("clientId")]
-    public long ClientId { get; init; }
+    public long CustomerId { get; init; }
     
     [JsonProperty("from")]
     public DateTime From { get; init; }

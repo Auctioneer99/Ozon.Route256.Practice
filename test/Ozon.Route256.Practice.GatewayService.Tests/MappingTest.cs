@@ -195,11 +195,11 @@ public sealed class MappingTest
     }
 
     [Fact]
-    public void ClientOrdersRequestTest()
+    public void CustomerOrdersRequestTest()
     {
-        var model = new ClientOrdersRequest
+        var model = new CustomerOrdersRequest
         {
-            ClientId = 2,
+            CustomerId = 2,
             From = DateTime.Now,
             Page = new()
             {
@@ -210,7 +210,7 @@ public sealed class MappingTest
 
         var mapped = model.FromDto();
         
-        Assert.Equal(model.ClientId, mapped.CustomerId);
+        Assert.Equal(model.CustomerId, mapped.CustomerId);
         Assert.Equal(model.From.ToUniversalTime(), mapped.From.ToDateTime());
         Assert.Equal(model.Page.SkipCount, mapped.Page.SkipCount);
         Assert.Equal(model.Page.TakeCount, mapped.Page.TakeCount);
@@ -356,7 +356,7 @@ public sealed class MappingTest
     }
 
     [Fact]
-    public void GetClientOrdersResponseTest()
+    public void GetCustomerOrdersResponseTest()
     {
         var model = new Grpc.Orders.GetCustomerOrdersResponse()
         {

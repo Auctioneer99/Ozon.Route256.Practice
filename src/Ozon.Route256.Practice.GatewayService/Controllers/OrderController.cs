@@ -29,7 +29,7 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<StatusResponse> GetStatus([FromRoute(Name = "orderId")] long orderId)
     {
-        var response =  await _orderClient.GetStatusByIdAsync(new Grpc.Orders.GetStatusByIdRequest() { Id = orderId });
+        var response = await _orderClient.GetStatusByIdAsync(new Grpc.Orders.GetStatusByIdRequest() { Id = orderId });
         return response.ToDto();
     }
 
@@ -62,7 +62,7 @@ public sealed class OrderController : ControllerBase
     [HttpGet("clientOrders")]
     [ProducesResponseType(typeof(OrdersResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<OrdersResponse> GetCustomerOrders([FromQuery] ClientOrdersRequest request)
+    public async Task<OrdersResponse> GetCustomerOrders([FromQuery] CustomerOrdersRequest request)
     {
         var response = await _orderClient.GetCustomerOrdersAsync(request.FromDto());
         return response.ToDto();

@@ -109,11 +109,11 @@ public static class MappingExtensions
         };
     }
 
-    public static Grpc.Orders.GetCustomerOrdersRequest FromDto(this ClientOrdersRequest dto)
+    public static Grpc.Orders.GetCustomerOrdersRequest FromDto(this CustomerOrdersRequest dto)
     {
         return new Grpc.Orders.GetCustomerOrdersRequest
         {
-            CustomerId = dto.ClientId,
+            CustomerId = dto.CustomerId,
             From = dto.From.ToUniversalTime().ToTimestamp(),
             Page = dto.Page.FromDto()
         };
