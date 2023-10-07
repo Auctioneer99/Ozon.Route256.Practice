@@ -1,9 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.ClientBalancing;
-using Ozon.Route256.Practice.OrdersService.Controllers;
-using Ozon.Route256.Practice.OrdersService.Infrastructure;
-using Ozon.Route256.Practice.OrdersService.Services;
-using Ozon.Route256.Practice.OrdersService.Services.Validation;
-using Ozon.Route256.Practice.ServiceDiscovery;
+﻿using Ozon.Route256.Practice.OrdersService.Controllers;
+using Ozon.Route256.Practice.OrdersService.Repository;
 
 namespace Ozon.Route256.Practice.OrdersService;
 
@@ -19,33 +15,10 @@ public sealed class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddGrpcClient<SdService.SdServiceClient>(options =>
-        {
-            var url = _configuration.GetValue<string>("ROUTE256_SD_ADDRESS");
-            if (string.IsNullOrEmpty(url))
-                throw new Exception("ROUTE256_SD_ADDRESS variable is empty");
+        services.AddGrpcServices(_configuration);
+        services.AddGrpcClients(_configuration);
 
-            options.Address = new Uri(url);
-        });
-
-        services.AddSingleton<IDbStore, DbStore>();
-        services.AddHostedService<SdConsumerHostedService>();
-
-        services.AddTransient<RegionService>();
-        services.AddTransient<OrdersGrpcService>();
-        
-        services.AddGrpc(x =>
-        {
-            x.Interceptors.Add<LoggerInterceptor>();
-            x.Interceptors.Add<ValidatorInterceptor>();
-        });
-        services.AddGrpcReflection();
-
-        services.AddTransient<IValidator<GetClientOrdersRequest>, GetClientOrdersRequestValidator>();
-        services.AddTransient<IValidator<GetOrdersAggregationRequest>, GetOrdersAggregationRequestValidator>();
-        services.AddTransient<IValidator<GetOrdersRequest>, GetOrdersRequestValidator>();
-        services.AddTransient<IValidator<GetStatusByIdRequest>, GetStatusByIdRequestValidator>();
-        services.AddTransient<IValidator<CancelRequest>, CancelRequestValidator>();
+        services.AddRepositories();
         
         services.AddEndpointsApiExplorer();
     }

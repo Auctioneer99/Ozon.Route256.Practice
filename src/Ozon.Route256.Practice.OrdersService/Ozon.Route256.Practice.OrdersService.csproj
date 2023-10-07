@@ -8,13 +8,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Faker.Net" Version="2.0.154" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.57.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos/*.proto" Type="Server" />
+        <Protobuf Include="Protos/Orders.proto" Type="Server" />
+        <Protobuf Include="Protos/Customers.proto" Type="Client" />
+        <Protobuf Include="Protos/LogisticsSimulator.proto" Type="Client" />
+        <Protobuf Include="Protos/sd.proto" Type="Client" />
     </ItemGroup>
 
     <ItemGroup>

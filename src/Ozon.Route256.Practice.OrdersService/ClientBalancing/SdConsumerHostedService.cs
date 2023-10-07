@@ -1,4 +1,4 @@
-﻿using Ozon.Route256.Practice.ServiceDiscovery;
+using Ozon.Route256.Practice.ServiceDiscovery;
 using Grpc.Core;
 
 namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;

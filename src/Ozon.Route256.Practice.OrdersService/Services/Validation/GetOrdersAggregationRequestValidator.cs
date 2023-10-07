@@ -14,7 +14,7 @@ public sealed class GetOrdersAggregationRequestValidator : IValidator<GetOrdersA
             return false;
         }
 
-        if (model.FromDate.ToDateTime() < new DateTime(2010, 1, 1))
+        if (model.FromDate.ToDateTime() < new DateTime(1970, 1, 1))
         {
             return false;
         }

@@ -1,119 +1,169 @@
 ﻿using Grpc.Core;
-using Ozon.Route256.Practice.OrdersService.Exceptions;
-using Ozon.Route256.Practice.OrdersService.Services;
+using Ozon.Route256.Practice.OrdersService.Repository;
+using Ozon.Route256.Practice.OrdersService.Repository.Dto;
+using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Controllers;
 
 public sealed class OrdersGrpcService : Orders.OrdersBase
 {
-    private readonly RegionService _regionService;
+    private readonly IRegionRepository _regionRepository;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IAddressRepository _addressRepository;
+    private readonly ILogisticsRepository _logisticsRepository;
+    private readonly ICustomerRepository _customerRepository;
 
-    public OrdersGrpcService(RegionService regionService)
+    public OrdersGrpcService(IRegionRepository regionRepository, IOrderRepository orderRepository,
+        IAddressRepository addressRepository,
+        ILogisticsRepository logisticsRepository, ICustomerRepository customerRepository)
     {
-        _regionService = regionService;
+        _regionRepository = regionRepository;
+        _orderRepository = orderRepository;
+        _addressRepository = addressRepository;
+        _logisticsRepository = logisticsRepository;
+        _customerRepository = customerRepository;
     }
 
-    public override Task<CancelResponse> CancelOrder(CancelRequest request, ServerCallContext context)
+    public override async Task<CancelResponse> CancelOrder(CancelRequest request, ServerCallContext context)
     {
-        if (request.Id == 0)
-        {
-            throw new NotFoundException($"Заказ с Id {request.Id} не найден");
-        }
+        var order = await _orderRepository.GetById(request.Id, context.CancellationToken);
 
-        if (request.Id == 1)
+        if (order.State == OrderState.Delivered)
         {
-            return Task.FromResult(new CancelResponse
+            return new CancelResponse
             {
                 IsSuccess = false,
                 Error = "Заказ на последней стадии оформления"
-            });
+            };
         }
-        
-        return Task.FromResult(new CancelResponse
+
+        var response = await _logisticsRepository.CancelOrder(request.Id, context.CancellationToken);
+
+        if (response.Success == false)
+        {
+            return response.FromDto();
+        }
+
+        await _orderRepository.UpdateOrderStatus(request.Id, OrderState.Cancelled, context.CancellationToken);
+
+        return new CancelResponse
         {
             IsSuccess = true,
             Error = ""
-        });
+        };
     }
 
-    public override Task<GetStatusByIdResponse> GetStatusById(GetStatusByIdRequest request, ServerCallContext context)
+    public override async Task<GetStatusByIdResponse> GetStatusById(GetStatusByIdRequest request,
+        ServerCallContext context)
     {
-        if (request.Id == 0)
-        {
-            throw new NotFoundException($"Заказ с Id {request.Id} не найден");
-        }
+        var order = await _orderRepository.GetById(request.Id, context.CancellationToken);
 
-        if (request.Id == 1)
+        return new GetStatusByIdResponse()
         {
-            return Task.FromResult((new GetStatusByIdResponse
+            State = order.State.FromDto()
+        };
+    }
+
+    public override async Task<GetRegionsResponse> GetRegions(Empty request, ServerCallContext context)
+    {
+        var regions = await _regionRepository.GetAll(context.CancellationToken);
+
+        return new GetRegionsResponse()
+        {
+            Regions = { regions.Select(r => r.Name) }
+        };
+    }
+
+    public override async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
+    {
+        var regions = await _regionRepository.GetManyByName(request.RegionFilter, context.CancellationToken);
+
+        var orderRequest = request.ToDto(regions.Select(r => r.Id));
+        var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
+
+        var addresses =
+            await _addressRepository.GetManyById(orders.Select(o => o.AddressId), context.CancellationToken);
+        var regionAddresses =
+            await _regionRepository.GetManyById(addresses.Select(a => a.RegionId).Distinct(),
+                context.CancellationToken);
+        var customers =
+            await _customerRepository.GetManyById(orders.Select(o => o.CustomerId).Distinct(),
+                context.CancellationToken);
+
+        return new GetOrdersResponse()
+        {
+            Orders =
             {
-                State = Order.Types.OrderState.Delivered
-            }));
-        }
-        
-        return Task.FromResult((new GetStatusByIdResponse
-        {
-            State = Order.Types.OrderState.Created
-        }));
-    }
-
-    public override Task<GetRegionsResponse> GetRegions(Empty request, ServerCallContext context)
-    {
-        var response = new GetRegionsResponse();
-        response.Regions.AddRange(_regionService.GetRegions());
-        
-        return Task.FromResult(response);
-    }
-
-    public override Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
-    {
-        var notFoundRegions = new HashSet<string>();
-        
-        foreach (var region in request.RegionFilter)
-        {
-            if (_regionService.HasRegion(region) == false)
-            {
-                notFoundRegions.Add(region);
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == o.AddressId) })
+                    .Select(pair => pair.Order.FromDto(
+                        regions.First(r => r.Id == pair.Order.RegionFromId),
+                        customers.First(c => c.Id == pair.Order.CustomerId),
+                        pair.Address.FromDto(regionAddresses.First(ra => ra.Id == pair.Address.RegionId)
+                        )))
             }
-        }
-
-        if (notFoundRegions.Count > 0)
-        {
-            throw new NotExistsException($"Регионы ({string.Join(", ", notFoundRegions)}) не существуют");
-        }
-        
-        var result = new GetOrdersResponse();
-
-        return Task.FromResult(result);
+        };
     }
-    
-    public override Task<GetOrdersAggregationResponse> GetOrdersAggregation(GetOrdersAggregationRequest request, ServerCallContext context)
+
+    public override async Task<GetOrdersAggregationResponse> GetOrdersAggregation(GetOrdersAggregationRequest request,
+        ServerCallContext context)
     {
-        var notFoundRegions = new HashSet<string>();
-        
-        foreach (var region in request.Regions)
+        var regions = await _regionRepository.GetManyByName(request.Regions, context.CancellationToken);
+
+        var orderRequest = new OrderRequestDto(
+            SortingType.None,
+            OrderField.NoneField,
+            0,
+            0,
+            OrderType.UndefinedType,
+            regions.Select(r => r.Id)
+        );
+        var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
+
+        var entries = new List<GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry>(regions.Length);
+        foreach (var group in orders.GroupBy(o => o.RegionFromId))
         {
-            if (_regionService.HasRegion(region) == false)
+            var entry = new GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry
             {
-                notFoundRegions.Add(region);
-            }
+                Region = regions.First(r => r.Id == group.Key).Name,
+                OrdersCount = group.Count(),
+                TotalOrdersSum = group.Sum(o => o.TotalSum),
+                TotalOrdersWeight = group.Sum(o => o.TotalWeight),
+                UniqueCustomersCount = group.Select(o => o.CustomerId).Distinct().Count()
+            };
+            entries.Add(entry);
         }
 
-        if (notFoundRegions.Count > 0)
+        return new GetOrdersAggregationResponse()
         {
-            throw new NotExistsException($"Регионы ({string.Join(", ", notFoundRegions)}) не существуют");
-        }
-
-        return Task.FromResult(new GetOrdersAggregationResponse());
+            Aggregations = { entries }
+        };
     }
 
-    public override Task<GetClientOrdersResponse> GetClientOrders(GetClientOrdersRequest request, ServerCallContext context)
+    public override async Task<GetCustomerOrdersResponse> GetCustomerOrders(GetCustomerOrdersRequest request,
+        ServerCallContext context)
     {
-        if (request.ClientId == 0)
-        {
-            throw new InvalidArgumentException($"Пользователь с ID {request.ClientId} не найден");
-        }
+        var orderRequest = request.ToDto();
+        var orders = await _orderRepository.GetByCustomerId(orderRequest, context.CancellationToken);
+        var addresses =
+            await _addressRepository.GetManyById(orders.Select(o => o.AddressId), context.CancellationToken);
+        var regions = await _regionRepository.GetManyById(
+            addresses.Select(a => a.RegionId).Union(orders.Select(o => o.RegionFromId)).Distinct(),
+            context.CancellationToken);
+        var customers =
+            await _customerRepository.GetManyById(orders.Select(o => o.CustomerId).Distinct(),
+                context.CancellationToken);
 
-        return Task.FromResult(new GetClientOrdersResponse());
+        return new GetCustomerOrdersResponse()
+        {
+            Orders =
+            {
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == o.AddressId) })
+                    .Select(pair => pair.Order.FromDto(
+                        regions.First(r => r.Id == pair.Order.RegionFromId),
+                        customers.First(c => c.Id == pair.Order.CustomerId),
+                        pair.Address.FromDto(regions.First(r => r.Id == pair.Address.RegionId)
+                        )))
+            }
+        };
     }
 }
