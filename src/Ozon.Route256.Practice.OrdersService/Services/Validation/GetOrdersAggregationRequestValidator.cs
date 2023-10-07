@@ -1,8 +1,8 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class GetOrdersAggregationRequestValidator : IValidator<GetOrdersAggregationRequest>
+public sealed class GetOrdersAggregationRequestValidator : IValidator<Grpc.Orders.GetOrdersAggregationRequest>
 {
-    public bool Validate(GetOrdersAggregationRequest model)
+    public bool Validate(Grpc.Orders.GetOrdersAggregationRequest model)
     {
         if (model.FromDate == null)
         {

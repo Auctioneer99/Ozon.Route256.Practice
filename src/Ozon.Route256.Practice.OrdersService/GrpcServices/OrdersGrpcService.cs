@@ -5,7 +5,7 @@ using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Controllers;
 
-public sealed class OrdersGrpcService : Orders.OrdersBase
+public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
 {
     private readonly IRegionRepository _regionRepository;
     private readonly IOrderRepository _orderRepository;
@@ -24,13 +24,13 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
         _customerRepository = customerRepository;
     }
 
-    public override async Task<CancelResponse> CancelOrder(CancelRequest request, ServerCallContext context)
+    public override async Task<Grpc.Orders.CancelResponse> CancelOrder(Grpc.Orders.CancelRequest request, ServerCallContext context)
     {
         var order = await _orderRepository.GetById(request.Id, context.CancellationToken);
 
         if (order.State == OrderState.Delivered)
         {
-            return new CancelResponse
+            return new Grpc.Orders.CancelResponse
             {
                 IsSuccess = false,
                 Error = "Заказ на последней стадии оформления"
@@ -46,35 +46,35 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
 
         await _orderRepository.UpdateOrderStatus(request.Id, OrderState.Cancelled, context.CancellationToken);
 
-        return new CancelResponse
+        return new Grpc.Orders.CancelResponse
         {
             IsSuccess = true,
             Error = ""
         };
     }
 
-    public override async Task<GetStatusByIdResponse> GetStatusById(GetStatusByIdRequest request,
+    public override async Task<Grpc.Orders.GetStatusByIdResponse> GetStatusById(Grpc.Orders.GetStatusByIdRequest request,
         ServerCallContext context)
     {
         var order = await _orderRepository.GetById(request.Id, context.CancellationToken);
 
-        return new GetStatusByIdResponse()
+        return new Grpc.Orders.GetStatusByIdResponse()
         {
             State = order.State.FromDto()
         };
     }
 
-    public override async Task<GetRegionsResponse> GetRegions(Empty request, ServerCallContext context)
+    public override async Task<Grpc.Orders.GetRegionsResponse> GetRegions(Grpc.Orders.Empty request, ServerCallContext context)
     {
         var regions = await _regionRepository.GetAll(context.CancellationToken);
 
-        return new GetRegionsResponse()
+        return new Grpc.Orders.GetRegionsResponse()
         {
             Regions = { regions.Select(r => r.Name) }
         };
     }
 
-    public override async Task<GetOrdersResponse> GetOrders(GetOrdersRequest request, ServerCallContext context)
+    public override async Task<Grpc.Orders.GetOrdersResponse> GetOrders(Grpc.Orders.GetOrdersRequest request, ServerCallContext context)
     {
         var regions = await _regionRepository.GetManyByName(request.RegionFilter, context.CancellationToken);
 
@@ -90,7 +90,7 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
             await _customerRepository.GetManyById(orders.Select(o => o.CustomerId).Distinct(),
                 context.CancellationToken);
 
-        return new GetOrdersResponse()
+        return new Grpc.Orders.GetOrdersResponse()
         {
             Orders =
             {
@@ -104,7 +104,7 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
         };
     }
 
-    public override async Task<GetOrdersAggregationResponse> GetOrdersAggregation(GetOrdersAggregationRequest request,
+    public override async Task<Grpc.Orders.GetOrdersAggregationResponse> GetOrdersAggregation(Grpc.Orders.GetOrdersAggregationRequest request,
         ServerCallContext context)
     {
         var regions = await _regionRepository.GetManyByName(request.Regions, context.CancellationToken);
@@ -119,10 +119,10 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
         );
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
 
-        var entries = new List<GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry>(regions.Length);
+        var entries = new List<Grpc.Orders.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry>(regions.Length);
         foreach (var group in orders.GroupBy(o => o.RegionFromId))
         {
-            var entry = new GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry
+            var entry = new Grpc.Orders.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry
             {
                 Region = regions.First(r => r.Id == group.Key).Name,
                 OrdersCount = group.Count(),
@@ -133,13 +133,13 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
             entries.Add(entry);
         }
 
-        return new GetOrdersAggregationResponse()
+        return new Grpc.Orders.GetOrdersAggregationResponse()
         {
             Aggregations = { entries }
         };
     }
 
-    public override async Task<GetCustomerOrdersResponse> GetCustomerOrders(GetCustomerOrdersRequest request,
+    public override async Task<Grpc.Orders.GetCustomerOrdersResponse> GetCustomerOrders(Grpc.Orders.GetCustomerOrdersRequest request,
         ServerCallContext context)
     {
         var orderRequest = request.ToDto();
@@ -153,7 +153,7 @@ public sealed class OrdersGrpcService : Orders.OrdersBase
             await _customerRepository.GetManyById(orders.Select(o => o.CustomerId).Distinct(),
                 context.CancellationToken);
 
-        return new GetCustomerOrdersResponse()
+        return new Grpc.Orders.GetCustomerOrdersResponse()
         {
             Orders =
             {

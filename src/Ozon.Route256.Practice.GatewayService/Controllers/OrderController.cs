@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Ozon.Route256.Practice.GatewayService.Services.Mapper;
-using Ozon.Route256.Practice.OrdersService;
-using CancelRequest = Ozon.Route256.Practice.GatewayService.Models.CancelRequest;
-using CancelResponse = Ozon.Route256.Practice.GatewayService.Models.CancelResponse;
 
 namespace Ozon.Route256.Practice.GatewayService.Controllers;
 
@@ -11,9 +8,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 [Route("[controller]")]
 public sealed class OrderController : ControllerBase
 {
-    private readonly Orders.OrdersClient _orderClient;
+    private readonly Grpc.Orders.Orders.OrdersClient _orderClient;
 
-    public OrderController(Orders.OrdersClient orderClient)
+    public OrderController(Grpc.Orders.Orders.OrdersClient orderClient)
     {
         _orderClient = orderClient;
     }
@@ -32,7 +29,7 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<StatusResponse> GetStatus([FromRoute(Name = "orderId")] long orderId)
     {
-        var response =  await _orderClient.GetStatusByIdAsync(new OrdersService.GetStatusByIdRequest() { Id = orderId });
+        var response =  await _orderClient.GetStatusByIdAsync(new Grpc.Orders.GetStatusByIdRequest() { Id = orderId });
         return response.ToDto();
     }
 
@@ -40,7 +37,7 @@ public sealed class OrderController : ControllerBase
     [ProducesResponseType(typeof(RegionsResponse), StatusCodes.Status200OK)]
     public async Task<RegionsResponse> GetRegions()
     {
-        var response = await _orderClient.GetRegionsAsync(new OrdersService.Empty());
+        var response = await _orderClient.GetRegionsAsync(new Grpc.Orders.Empty());
         return response.ToDto();
     }
 

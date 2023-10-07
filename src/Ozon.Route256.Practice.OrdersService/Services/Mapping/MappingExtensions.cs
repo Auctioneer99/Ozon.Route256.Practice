@@ -1,40 +1,38 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using Ozon.Route256.Practice.Customers;
-using Ozon.Route256.Practice.LogisticsSimulator.Grpc;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 public static class MappingExtensions
 {
-    public static Order.Types.OrderState FromDto(this OrderState state)
+    public static Grpc.Orders.Order.Types.OrderState FromDto(this OrderState state)
     {
-        return (Order.Types.OrderState)state;
+        return (Grpc.Orders.Order.Types.OrderState)state;
     }
     
-    public static Order.Types.OrderType FromDto(this OrderType state)
+    public static Grpc.Orders.Order.Types.OrderType FromDto(this OrderType state)
     {
-        return (Order.Types.OrderType)state;
+        return (Grpc.Orders.Order.Types.OrderType)state;
     }
 
-    public static OrderField ToDto(this Order.Types.SortField field)
+    public static OrderField ToDto(this Grpc.Orders.Order.Types.SortField field)
     {
         return (OrderField)field;
     }
 
-    public static SortingType ToDto(this SortType field)
+    public static SortingType ToDto(this Grpc.Orders.SortType field)
     {
         return (SortingType)field;
     }
 
-    public static OrderType ToDto(this Order.Types.OrderType field)
+    public static OrderType ToDto(this Grpc.Orders.Order.Types.OrderType field)
     {
         return (OrderType)field;
     }
 
-    public static Order FromDto(this OrderDto order, RegionDto region, CustomerDto customer, Order.Types.Address address)
+    public static Grpc.Orders.Order FromDto(this OrderDto order, RegionDto region, CustomerDto customer, Grpc.Orders.Order.Types.Address address)
     {
-        return new Order
+        return new Grpc.Orders.Order
         {
             Id = order.Id,
             Count = order.Count,
@@ -50,9 +48,9 @@ public static class MappingExtensions
         };
     }
 
-    public static Order.Types.Address FromDto(this AddressDto address, RegionDto region)
+    public static Grpc.Orders.Order.Types.Address FromDto(this AddressDto address, RegionDto region)
     {
-        return new Order.Types.Address
+        return new Grpc.Orders.Order.Types.Address
         {
             Region = region.Name,
             City = address.City,
@@ -64,7 +62,7 @@ public static class MappingExtensions
         };
     }
 
-    public static CustomerDto ToDto(this Customer customer)
+    public static CustomerDto ToDto(this Grpc.Customers.Customer customer)
     {
         return new CustomerDto(
             customer.Id,
@@ -75,7 +73,7 @@ public static class MappingExtensions
             );
     }
 
-    public static OrderRequestDto ToDto(this GetOrdersRequest request, IEnumerable<long> regions)
+    public static OrderRequestDto ToDto(this Grpc.Orders.GetOrdersRequest request, IEnumerable<long> regions)
     {
         return new OrderRequestDto(
             request.Sort.ToDto(),
@@ -87,21 +85,21 @@ public static class MappingExtensions
         );
     }
 
-    public static CancelResultDto ToDto(this CancelResult result)
+    public static CancelResultDto ToDto(this Grpc.LogisticsSimulator.CancelResult result)
     {
         return new CancelResultDto(result.Success, result.Error);
     }
 
-    public static CancelResponse FromDto(this CancelResultDto result)
+    public static Grpc.Orders.CancelResponse FromDto(this CancelResultDto result)
     {
-        return new CancelResponse()
+        return new Grpc.Orders.CancelResponse()
         {
             IsSuccess = result.Success,
             Error = result.Error
         };
     }
 
-    public static OrderRequestByCustomerDto ToDto(this GetCustomerOrdersRequest request)
+    public static OrderRequestByCustomerDto ToDto(this Grpc.Orders.GetCustomerOrdersRequest request)
     {
         return new OrderRequestByCustomerDto(
             request.CustomerId,

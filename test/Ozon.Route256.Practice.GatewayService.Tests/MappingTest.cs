@@ -1,7 +1,6 @@
 using Google.Protobuf.WellKnownTypes;
 using Ozon.Route256.Practice.GatewayService.Models;
 using Ozon.Route256.Practice.GatewayService.Services.Mapper;
-using Order = Ozon.Route256.Practice.OrdersService.Order;
 
 namespace Ozon.Route256.Practice.GatewayService.Tests;
 
@@ -26,18 +25,18 @@ public sealed class MappingTest
     [Fact]
     public void OrderTest()
     {
-        var model = new Order
+        var model = new Grpc.Orders.Order
         {
             Id = 2,
             Count = 3,
             TotalSum = 4,
             TotalWeight = 5,
-            Type = Order.Types.OrderType.FirstType,
+            Type = Grpc.Orders.Order.Types.OrderType.FirstType,
             CreatedAt = DateTime.Now.ToUniversalTime().ToTimestamp(),
             RegionFrom = "RU",
-            State = Order.Types.OrderState.Cancelled,
-            ClientName = "client",
-            OrderAddress = new Order.Types.Address
+            State = Grpc.Orders.Order.Types.OrderState.Cancelled,
+            CustomerName = "client",
+            OrderAddress = new Grpc.Orders.Order.Types.Address
             {
                 Region = "RU",
                 City = "Ty",
@@ -60,7 +59,7 @@ public sealed class MappingTest
         Assert.Equal(model.CreatedAt, mapped.CreatedAt);
         Assert.Equal(model.RegionFrom, mapped.RegionFrom);
         Assert.Equal(model.State, mapped.State);
-        Assert.Equal(model.ClientName, mapped.ClientName);
+        Assert.Equal(model.CustomerName, mapped.CustomerName);
         Assert.Equal(model.OrderAddress.Region, mapped.OrderAddress.Region);
         Assert.Equal(model.OrderAddress.City, mapped.OrderAddress.City);
         Assert.Equal(model.OrderAddress.Street, mapped.OrderAddress.Street);
@@ -138,14 +137,14 @@ public sealed class MappingTest
     public void SortTypeTest()
     {
         var model = SortType.Ascending;
-        Assert.Equal(OrdersService.SortType.Ascending, model.FromDto());
+        Assert.Equal(Grpc.Orders.SortType.Ascending, model.FromDto());
     }
 
     [Fact]
     public void SortFieldTest()
     {
-        var model = OrderFilterField.Phone;
-        Assert.Equal(OrdersService.Order.Types.SortField.Phone, model.FromDto());
+        var model = OrderFilterField.Count;
+        Assert.Equal(Grpc.Orders.Order.Types.SortField.Count, model.FromDto());
     }
 
     [Fact]
@@ -164,17 +163,17 @@ public sealed class MappingTest
                 TakeCount = 3
             },
             Sort = SortType.Ascending,
-            SortField = OrderFilterField.Phone
+            SortField = OrderFilterField.Count
         };
 
         var mapped = model.FromDto();
         
         Assert.Equal(model.RegionFilter, mapped.RegionFilter);
-        Assert.Equal(Order.Types.OrderType.FirstType, mapped.OrderTypeFilter);
+        Assert.Equal(Grpc.Orders.Order.Types.OrderType.FirstType, mapped.OrderTypeFilter);
         Assert.Equal(model.Page.SkipCount, mapped.Page.SkipCount);
         Assert.Equal(model.Page.TakeCount, mapped.Page.TakeCount);
-        Assert.Equal(OrdersService.SortType.Ascending, mapped.Sort);
-        Assert.Equal(Order.Types.SortField.Phone, mapped.SortField);
+        Assert.Equal(Grpc.Orders.SortType.Ascending, mapped.Sort);
+        Assert.Equal(Grpc.Orders.Order.Types.SortField.Count, mapped.SortField);
     }
 
     [Fact]
@@ -211,7 +210,7 @@ public sealed class MappingTest
 
         var mapped = model.FromDto();
         
-        Assert.Equal(model.ClientId, mapped.ClientId);
+        Assert.Equal(model.ClientId, mapped.CustomerId);
         Assert.Equal(model.From.ToUniversalTime(), mapped.From.ToDateTime());
         Assert.Equal(model.Page.SkipCount, mapped.Page.SkipCount);
         Assert.Equal(model.Page.TakeCount, mapped.Page.TakeCount);
@@ -220,7 +219,7 @@ public sealed class MappingTest
     [Fact]
     public void CustomerTest()
     {
-        var model = new Customers.Customer
+        var model = new Grpc.Customers.Customer()
         {
             Id = 2,
             FirstName = "asd",
@@ -258,7 +257,7 @@ public sealed class MappingTest
     [Fact]
     public void GetCustomersResponseTest()
     {
-        var model = new Customers.GetCustomersResponse()
+        var model = new Grpc.Customers.GetCustomersResponse()
         {
             Customers = { }
         };
@@ -271,7 +270,7 @@ public sealed class MappingTest
     [Fact]
     public void CancelResponseTest()
     {
-        var model = new OrdersService.CancelResponse
+        var model = new Grpc.Orders.CancelResponse
         {
             IsSuccess = true,
             Error = "asd"
@@ -286,9 +285,9 @@ public sealed class MappingTest
     [Fact]
     public void GetStatusByIdResponse()
     {
-        var model = new OrdersService.GetStatusByIdResponse
+        var model = new Grpc.Orders.GetStatusByIdResponse
         {
-            State = Order.Types.OrderState.Created
+            State = Grpc.Orders.Order.Types.OrderState.Created
         };
 
         var mapped = model.ToDto();
@@ -299,7 +298,7 @@ public sealed class MappingTest
     [Fact]
     public void GetRegionsResponseTest()
     {
-        var model = new OrdersService.GetRegionsResponse()
+        var model = new Grpc.Orders.GetRegionsResponse()
         {
             Regions = { "RU" }
         };
@@ -312,7 +311,7 @@ public sealed class MappingTest
     [Fact]
     public void GetOrdersResponseTest()
     {
-        var model = new OrdersService.GetOrdersResponse()
+        var model = new Grpc.Orders.GetOrdersResponse()
         {
             Orders = { }
         };
@@ -325,13 +324,13 @@ public sealed class MappingTest
     [Fact]
     public void GetOrdersAggregationResponseEntryTest()
     {
-        var model = new OrdersService.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry
+        var model = new Grpc.Orders.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry
         {
             Region = "asda",
             OrdersCount = 321,
             TotalOrdersSum = 435,
             TotalOrdersWeight = 123,
-            UniqueClientsCount = 534654
+            UniqueCustomersCount = 534654
         };
 
         var mapped = model.ToDto();
@@ -340,13 +339,13 @@ public sealed class MappingTest
         Assert.Equal(model.OrdersCount, mapped.OrdersCount);
         Assert.Equal(model.TotalOrdersSum, mapped.TotalOrdersSum);
         Assert.Equal(model.TotalOrdersWeight, mapped.TotalOrdersWeight);
-        Assert.Equal(model.UniqueClientsCount, mapped.UniqueClientsCount);
+        Assert.Equal(model.UniqueCustomersCount, mapped.UniqueClientsCount);
     }
 
     [Fact]
     public void GetOrdersAggregationResponseTest()
     {
-        var model = new OrdersService.GetOrdersAggregationResponse()
+        var model = new Grpc.Orders.GetOrdersAggregationResponse()
         {
             Aggregations = { }
         };
@@ -359,7 +358,7 @@ public sealed class MappingTest
     [Fact]
     public void GetClientOrdersResponseTest()
     {
-        var model = new OrdersService.GetClientOrdersResponse()
+        var model = new Grpc.Orders.GetCustomerOrdersResponse()
         {
             Orders = { }
         };

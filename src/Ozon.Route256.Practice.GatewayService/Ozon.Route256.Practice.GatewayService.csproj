@@ -17,7 +17,7 @@
 
     <ItemGroup>
         <Protobuf Include="Protos/Customers.proto" Type="Client" />
-        <Protobuf Update="Protos/Orders.proto" Type="Client" />
+        <Protobuf Include="Protos/Orders.proto" Type="Client" />
     </ItemGroup>
     
     <ItemGroup>
@@ -29,9 +29,5 @@
     <ItemGroup>
       <Folder Include="ClientBalancing" />
       <Folder Include="Middleware" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService\Ozon.Route256.Practice.OrdersService.csproj" />
     </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option csharp_namespace = "Ozon.Route256.Practice.Customers";
+option csharp_namespace = "Ozon.Route256.Practice.GatewayService.Grpc.Customers";
 import "google/protobuf/empty.proto";
 
 service Customers

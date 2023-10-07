@@ -1,4 +1,3 @@
-using Ozon.Route256.Practice.ServiceDiscovery;
 using Grpc.Core;
 
 namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;
@@ -6,12 +5,12 @@ namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;
 public sealed class SdConsumerHostedService : BackgroundService
 {
     private readonly IDbStore _dbStore;
-    private readonly SdService.SdServiceClient _sdServiceClient;
+    private readonly Grpc.ServiceDiscovery.SdService.SdServiceClient _sdServiceClient;
     private readonly ILogger<SdConsumerHostedService> _logger;
 
     public SdConsumerHostedService(
         IDbStore dbStore,
-        SdService.SdServiceClient sdServiceClient,
+        Grpc.ServiceDiscovery.SdService.SdServiceClient sdServiceClient,
         ILogger<SdConsumerHostedService> logger)
     {
         _dbStore = dbStore;
@@ -25,7 +24,7 @@ public sealed class SdConsumerHostedService : BackgroundService
         {
             try
             {
-                var request = new DbResourcesRequest
+                var request = new Grpc.ServiceDiscovery.DbResourcesRequest
                 {
                     ClusterName = "cluster"
                 };
@@ -53,19 +52,19 @@ public sealed class SdConsumerHostedService : BackgroundService
         }
     }
 
-    private IEnumerable<DbEndpoint> GetEndpoints(DbResourcesResponse response) =>
+    private IEnumerable<DbEndpoint> GetEndpoints(Grpc.ServiceDiscovery.DbResourcesResponse response) =>
         response.Replicas.Select(replica => new DbEndpoint(
             $"{replica.Host}:{replica.Port}",
             ToDbReplica(replica.Type),
             replica.Buckets.ToArray()
         ));
 
-    private DbReplicaType ToDbReplica(Replica.Types.ReplicaType replicaType) =>
+    private DbReplicaType ToDbReplica(Grpc.ServiceDiscovery.Replica.Types.ReplicaType replicaType) =>
         replicaType switch
         {
-            Replica.Types.ReplicaType.Master => DbReplicaType.Master,
-            Replica.Types.ReplicaType.Sync => DbReplicaType.Sync,
-            Replica.Types.ReplicaType.Async => DbReplicaType.Async,
+            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Master => DbReplicaType.Master,
+            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Sync => DbReplicaType.Sync,
+            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Async => DbReplicaType.Async,
             _ => throw new ArgumentOutOfRangeException(nameof(replicaType), replicaType, null)
         };
 }

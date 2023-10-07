@@ -5,14 +5,14 @@ namespace Ozon.Route256.Practice.GatewayService.Services.Mapper;
 
 public static class MappingExtensions
 {
-    public static OrdersService.Order.Types.OrderState FromDto(this OrderState type)
+    public static Grpc.Orders.Order.Types.OrderState FromDto(this OrderState type)
     {
-        return (OrdersService.Order.Types.OrderState)type;
+        return (Grpc.Orders.Order.Types.OrderState)type;
     }
     
-    public static OrdersService.Order FromDto(this Order dto)
+    public static Grpc.Orders.Order FromDto(this Order dto)
     {
-        return new OrdersService.Order
+        return new Grpc.Orders.Order
         {
             Id = dto.Id,
             Count = dto.Count,
@@ -28,9 +28,9 @@ public static class MappingExtensions
         };
     }
 
-    public static Customers.Address FromDtoToCustomer(this Address dto)
+    public static Grpc.Customers.Address FromDtoToCustomer(this Address dto)
     {
-        return new Customers.Address
+        return new Grpc.Customers.Address
         {
             Region = dto.Region,
             City = dto.City,
@@ -42,9 +42,9 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersService.Order.Types.Address FromDtoToOrder(this Address dto)
+    public static Grpc.Orders.Order.Types.Address FromDtoToOrder(this Address dto)
     {
-        return new OrdersService.Order.Types.Address
+        return new Grpc.Orders.Order.Types.Address
         {
             Region = dto.Region,
             City = dto.City,
@@ -56,41 +56,41 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersService.PagingRequest FromDto(this PagingRequest dto)
+    public static Grpc.Orders.PagingRequest FromDto(this PagingRequest dto)
     {
-        return new OrdersService.PagingRequest
+        return new Grpc.Orders.PagingRequest
         {
             SkipCount = dto.SkipCount,
             TakeCount = dto.TakeCount
         };
     }
 
-    public static OrdersService.CancelRequest FromDto(this CancelRequest dto)
+    public static Grpc.Orders.CancelRequest FromDto(this CancelRequest dto)
     {
-        return new OrdersService.CancelRequest
+        return new Grpc.Orders.CancelRequest
         {
             Id = dto.Id
         };
     }
 
-    public static OrdersService.Order.Types.OrderType FromDto(this OrderType type)
+    public static Grpc.Orders.Order.Types.OrderType FromDto(this OrderType type)
     {
-        return (OrdersService.Order.Types.OrderType)type;
+        return (Grpc.Orders.Order.Types.OrderType)type;
     }
 
-    public static OrdersService.SortType FromDto(this SortType type)
+    public static Grpc.Orders.SortType FromDto(this SortType type)
     {
-        return (OrdersService.SortType)type;
+        return (Grpc.Orders.SortType)type;
     }
 
-    public static OrdersService.Order.Types.SortField FromDto(this OrderFilterField type)
+    public static Grpc.Orders.Order.Types.SortField FromDto(this OrderFilterField type)
     {
-        return (OrdersService.Order.Types.SortField)type;
+        return (Grpc.Orders.Order.Types.SortField)type;
     }
     
-    public static OrdersService.GetOrdersRequest FromDto(this OrdersRequest dto)
+    public static Grpc.Orders.GetOrdersRequest FromDto(this OrdersRequest dto)
     {
-        return new OrdersService.GetOrdersRequest
+        return new Grpc.Orders.GetOrdersRequest
         {
             OrderTypeFilter = dto.OrderTypeFilter.FromDto(),
             Page = dto.Page.FromDto(),
@@ -100,18 +100,18 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersService.GetOrdersAggregationRequest FromDto(this OrdersAggregationRequest dto)
+    public static Grpc.Orders.GetOrdersAggregationRequest FromDto(this OrdersAggregationRequest dto)
     {
-        return new OrdersService.GetOrdersAggregationRequest
+        return new Grpc.Orders.GetOrdersAggregationRequest
         {
             FromDate = dto.FromDate.ToUniversalTime().ToTimestamp(),
             Regions = { dto.Regions }
         };
     }
 
-    public static OrdersService.GetCustomerOrdersRequest FromDto(this ClientOrdersRequest dto)
+    public static Grpc.Orders.GetCustomerOrdersRequest FromDto(this ClientOrdersRequest dto)
     {
-        return new OrdersService.GetCustomerOrdersRequest
+        return new Grpc.Orders.GetCustomerOrdersRequest
         {
             CustomerId = dto.ClientId,
             From = dto.From.ToUniversalTime().ToTimestamp(),
@@ -119,17 +119,17 @@ public static class MappingExtensions
         };
     }
     
-    public static OrderType ToDto(this OrdersService.Order.Types.OrderType type)
+    public static OrderType ToDto(this Grpc.Orders.Order.Types.OrderType type)
     {
         return (OrderType)type;
     }
 
-    public static OrderState ToDto(this OrdersService.Order.Types.OrderState type)
+    public static OrderState ToDto(this Grpc.Orders.Order.Types.OrderState type)
     {
         return (OrderState)type;
     }
 
-    public static Address ToDto(this Customers.Address model)
+    public static Address ToDto(this Grpc.Customers.Address model)
     {
         return new Address
         {
@@ -143,7 +143,7 @@ public static class MappingExtensions
         };
     }
 
-    public static Address ToDto(this OrdersService.Order.Types.Address model)
+    public static Address ToDto(this Grpc.Orders.Order.Types.Address model)
     {
         return new Address
         {
@@ -157,7 +157,7 @@ public static class MappingExtensions
         };
     }
     
-    public static Customer ToDto(this Customers.Customer model)
+    public static Customer ToDto(this Grpc.Customers.Customer model)
     {
         return new Customer
         {
@@ -171,7 +171,7 @@ public static class MappingExtensions
         };
     }
     
-    public static CustomersResponse ToDto(this Customers.GetCustomersResponse model)
+    public static CustomersResponse ToDto(this Grpc.Customers.GetCustomersResponse model)
     {
         return new CustomersResponse
         {
@@ -179,7 +179,7 @@ public static class MappingExtensions
         };
     }
 
-    public static CancelResponse ToDto(this OrdersService.CancelResponse model)
+    public static CancelResponse ToDto(this Grpc.Orders.CancelResponse model)
     {
         return new CancelResponse
         {
@@ -188,7 +188,7 @@ public static class MappingExtensions
         };
     }
 
-    public static StatusResponse ToDto(this OrdersService.GetStatusByIdResponse model)
+    public static StatusResponse ToDto(this Grpc.Orders.GetStatusByIdResponse model)
     {
         return new StatusResponse
         {
@@ -196,7 +196,7 @@ public static class MappingExtensions
         };
     }
 
-    public static RegionsResponse ToDto(this OrdersService.GetRegionsResponse model)
+    public static RegionsResponse ToDto(this Grpc.Orders.GetRegionsResponse model)
     {
         return new RegionsResponse
         {
@@ -204,7 +204,7 @@ public static class MappingExtensions
         };
     }
     
-    public static Order ToDto(this OrdersService.Order model)
+    public static Order ToDto(this Grpc.Orders.Order model)
     {
         return new Order
         {
@@ -222,7 +222,7 @@ public static class MappingExtensions
         };
     }
     
-    public static OrdersResponse ToDto(this OrdersService.GetOrdersResponse model)
+    public static OrdersResponse ToDto(this Grpc.Orders.GetOrdersResponse model)
     {
         return new OrdersResponse
         {
@@ -230,7 +230,7 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersAggregationResponse.OrdersAggregationResponseEntry ToDto(this OrdersService.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry model)
+    public static OrdersAggregationResponse.OrdersAggregationResponseEntry ToDto(this Grpc.Orders.GetOrdersAggregationResponse.Types.GetOrdersAggregationResponseEntry model)
     {
         return new OrdersAggregationResponse.OrdersAggregationResponseEntry
         {
@@ -242,7 +242,7 @@ public static class MappingExtensions
         };
     }
     
-    public static OrdersAggregationResponse ToDto(this OrdersService.GetOrdersAggregationResponse model)
+    public static OrdersAggregationResponse ToDto(this Grpc.Orders.GetOrdersAggregationResponse model)
     {
         return new OrdersAggregationResponse
         {
@@ -250,7 +250,7 @@ public static class MappingExtensions
         };
     }
 
-    public static OrdersResponse ToDto(this OrdersService.GetCustomerOrdersResponse model)
+    public static OrdersResponse ToDto(this Grpc.Orders.GetCustomerOrdersResponse model)
     {
         return new OrdersResponse
         {
