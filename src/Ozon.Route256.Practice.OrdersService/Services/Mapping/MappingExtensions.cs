@@ -15,21 +15,6 @@ public static class MappingExtensions
         return (Grpc.Orders.Order.Types.OrderType)state;
     }
 
-    public static OrderField ToDto(this Grpc.Orders.Order.Types.SortField field)
-    {
-        return (OrderField)field;
-    }
-
-    public static SortingType ToDto(this Grpc.Orders.SortType field)
-    {
-        return (SortingType)field;
-    }
-
-    public static OrderType ToDto(this Grpc.Orders.Order.Types.OrderType field)
-    {
-        return (OrderType)field;
-    }
-
     public static Grpc.Orders.Order FromDto(this OrderDto order, RegionDto region, CustomerDto customer, Grpc.Orders.Order.Types.Address address)
     {
         return new Grpc.Orders.Order
@@ -62,6 +47,30 @@ public static class MappingExtensions
         };
     }
 
+    public static Grpc.Orders.CancelResponse FromDto(this CancelResultDto result)
+    {
+        return new Grpc.Orders.CancelResponse()
+        {
+            IsSuccess = result.Success,
+            Error = result.Error
+        };
+    }
+
+    public static OrderField ToDto(this Grpc.Orders.Order.Types.SortField field)
+    {
+        return (OrderField)field;
+    }
+
+    public static SortingType ToDto(this Grpc.Orders.SortType field)
+    {
+        return (SortingType)field;
+    }
+
+    public static OrderType ToDto(this Grpc.Orders.Order.Types.OrderType field)
+    {
+        return (OrderType)field;
+    }
+
     public static CustomerDto ToDto(this Grpc.Customers.Customer customer)
     {
         return new CustomerDto(
@@ -88,15 +97,6 @@ public static class MappingExtensions
     public static CancelResultDto ToDto(this Grpc.LogisticsSimulator.CancelResult result)
     {
         return new CancelResultDto(result.Success, result.Error);
-    }
-
-    public static Grpc.Orders.CancelResponse FromDto(this CancelResultDto result)
-    {
-        return new Grpc.Orders.CancelResponse()
-        {
-            IsSuccess = result.Success,
-            Error = result.Error
-        };
     }
 
     public static OrderRequestByCustomerDto ToDto(this Grpc.Orders.GetCustomerOrdersRequest request)
