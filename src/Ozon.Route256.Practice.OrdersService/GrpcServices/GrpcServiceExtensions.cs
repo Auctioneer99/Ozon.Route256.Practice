@@ -3,7 +3,7 @@ using Ozon.Route256.Practice.OrdersService.ClientBalancing;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
 using Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-namespace Ozon.Route256.Practice.OrdersService.Controllers;
+namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 
 public static class GrpcServiceExtensions
 {

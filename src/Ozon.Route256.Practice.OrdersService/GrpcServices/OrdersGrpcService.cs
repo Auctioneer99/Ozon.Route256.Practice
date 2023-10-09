@@ -3,7 +3,7 @@ using Ozon.Route256.Practice.OrdersService.Repository;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
-namespace Ozon.Route256.Practice.OrdersService.Controllers;
+namespace Ozon.Route256.Practice.OrdersService.GrpcServices;
 
 public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
 {

@@ -1,4 +1,4 @@
-﻿using Ozon.Route256.Practice.OrdersService.Controllers;
+﻿using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Repository;
 
 namespace Ozon.Route256.Practice.OrdersService;
