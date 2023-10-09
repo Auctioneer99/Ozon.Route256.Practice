@@ -149,9 +149,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         var regions = await _regionRepository.GetManyById(
             addresses.Select(a => a.RegionId).Union(orders.Select(o => o.RegionFromId)).Distinct(),
             context.CancellationToken);
-        var customers =
-            await _customerRepository.GetManyById(orders.Select(o => o.CustomerId).Distinct(),
-                context.CancellationToken);
+        var customer = await _customerRepository.GetById(request.CustomerId, context.CancellationToken);
 
         return new Grpc.Orders.GetCustomerOrdersResponse()
         {
@@ -160,7 +158,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
                 orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == o.AddressId) })
                     .Select(pair => pair.Order.FromDto(
                         regions.First(r => r.Id == pair.Order.RegionFromId),
-                        customers.First(c => c.Id == pair.Order.CustomerId),
+                        customer,
                         pair.Address.FromDto(regions.First(r => r.Id == pair.Address.RegionId)
                         )))
             }
