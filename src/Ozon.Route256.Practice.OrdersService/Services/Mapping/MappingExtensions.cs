@@ -25,7 +25,7 @@ public static class MappingExtensions
             TotalWeight = order.TotalWeight,
             Type = order.Type.FromDto(),
             State = order.State.FromDto(),
-            CreatedAt = order.CreatedAt.ToTimestamp(),
+            CreatedAt = order.CreatedAt.ToUniversalTime().ToTimestamp(),
             RegionFrom = region.Name,
             OrderAddress = address,
             CustomerName = $"{customer.FirstName} {customer.LastName}",
