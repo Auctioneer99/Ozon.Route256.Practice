@@ -1,8 +1,8 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class GetOrdersRequestValidator : IValidator<GetOrdersRequest>
+public sealed class GetOrdersRequestValidator : IValidator<Grpc.Orders.GetOrdersRequest>
 {
-    public bool Validate(GetOrdersRequest model)
+    public bool Validate(Grpc.Orders.GetOrdersRequest model)
     {
         if (model.Page == null)
         {
@@ -24,7 +24,7 @@ public sealed class GetOrdersRequestValidator : IValidator<GetOrdersRequest>
             return false;
         }
 
-        if (model.OrderTypeFilter == Order.Types.OrderType.UndefinedType)
+        if (model.OrderTypeFilter == Grpc.Orders.Order.Types.OrderType.UndefinedType)
         {
             return false;
         }

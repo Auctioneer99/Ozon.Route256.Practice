@@ -21,14 +21,6 @@ public enum OrderFilterField
     OrderType = 5,
     [EnumMember(Value = "CreatedAt")]
     CreatedAt = 6,
-    [EnumMember(Value = "RegionFrom")]
-    RegionFrom = 7,
     [EnumMember(Value = "OrderState")]
-    OrderState = 8,
-    [EnumMember(Value = "ClientName")]
-    ClientName = 9,
-    [EnumMember(Value = "OrderAddress")]
-    OrderAddress = 10,
-    [EnumMember(Value = "Phone")]
-    Phone = 11
+    OrderState = 7,
 }

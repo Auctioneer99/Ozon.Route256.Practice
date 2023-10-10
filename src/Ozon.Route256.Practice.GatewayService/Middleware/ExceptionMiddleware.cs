@@ -23,14 +23,14 @@ public sealed class ExceptionMiddleware
             var errorView = GetErrorView(contextFeature.Error);
             context.Response.StatusCode = (int)errorView.Code;
             context.Response.ContentType = "application/json";
- 
+
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorResponse()
             {
                 Error = errorView.Message
             }));
         }
     }
- 
+
     private ErrorView GetErrorView(Exception e)
     {
         switch (e)
@@ -39,7 +39,7 @@ public sealed class ExceptionMiddleware
                 return GetErrorView(rpcException);
             default:
                 _logger.LogError(e, "Unhandled exception:" + e.Message);
-                return new ErrorView(HttpStatusCode.InternalServerError, e.Message); 
+                return new ErrorView(HttpStatusCode.InternalServerError, e.Message);
         }
     }
 

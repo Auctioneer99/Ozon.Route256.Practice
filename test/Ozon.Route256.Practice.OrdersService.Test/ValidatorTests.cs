@@ -1,5 +1,5 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using Ozon.Route256.Practice.OrdersService;
+using Ozon.Route256.Practice.OrdersService.Grpc.Orders;
 using Ozon.Route256.Practice.OrdersService.Services.Validation;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
@@ -7,7 +7,7 @@ namespace Ozon.Route256.Practice.OrdersService.Test;
 public sealed class ValidatorTests
 {
     private readonly CancelRequestValidator _cancelRequestValidator = new();
-    private readonly GetClientOrdersRequestValidator _getClientOrdersRequestValidator = new();
+    private readonly GetCustomerOrdersRequestValidator _getClientOrdersRequestValidator = new();
     private readonly GetOrdersAggregationRequestValidator _getOrdersAggregationRequestValidator = new();
     private readonly GetOrdersRequestValidator _getOrdersRequestValidator = new();
     private readonly GetStatusByIdRequestValidator _getStatusByIdRequestValidator = new();
@@ -28,39 +28,39 @@ public sealed class ValidatorTests
     [Fact]
     public void GetClientOrdersRequestValidatorTest()
     {
-        Assert.True(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest
+        Assert.True(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest
         {
-            ClientId = 0,
+            CustomerId = 0,
             From = DateTime.Now.AddDays(-1).ToUniversalTime().ToTimestamp(),
             Page = new() { TakeCount = 1 }
         }));
-        Assert.False(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest
+        Assert.False(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest
         {
-            ClientId = 0,
+            CustomerId = 0,
             From = DateTime.Now.AddDays(-1).ToUniversalTime().ToTimestamp(),
             Page = null
         }));
-        Assert.False(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest()
+        Assert.False(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest()
         {
-            ClientId = 0,
+            CustomerId = 0,
             From = DateTime.Now.AddDays(-1).ToUniversalTime().ToTimestamp(),
             Page = new()
         }));
-        Assert.False(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest()
+        Assert.False(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest()
         {
-            ClientId = 0,
+            CustomerId = 0,
             From = null,
             Page = new() { TakeCount = 1 }
         }));
-        Assert.False(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest()
+        Assert.False(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest()
         {
-            ClientId = 0,
+            CustomerId = 0,
             From = DateTime.Now.AddDays(-1).ToUniversalTime().ToTimestamp(),
             Page = new() { TakeCount = 1, SkipCount = -1 }
         }));
-        Assert.False(_getClientOrdersRequestValidator.Validate(new GetClientOrdersRequest()
+        Assert.False(_getClientOrdersRequestValidator.Validate(new GetCustomerOrdersRequest()
         {
-            ClientId = -1,
+            CustomerId = -1,
             From = DateTime.Now.AddDays(-1).ToUniversalTime().ToTimestamp(),
             Page = new() { TakeCount = 1 }
         }));

@@ -24,6 +24,8 @@ services:
     environment: 
       "ROUTE256_GRPC_PORT": "81"
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS": "http://logistics-simulator:80"
+      "ROUTE256_CUSTOMER_SERVICE_ADDRESS": "http://customer-service:81"
     ports:
       - "8180:81"
   
@@ -35,6 +37,8 @@ services:
     environment:
       "ROUTE256_GRPC_PORT": "81"
       "ROUTE256_SD_ADDRESS": "http://service-discovery:80"
+      "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS": "http://logistics-simulator:80"
+      "ROUTE256_CUSTOMER_SERVICE_ADDRESS": "http://customer-service:81"
     ports:
       - "8280:81"
   

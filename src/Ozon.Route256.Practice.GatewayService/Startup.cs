@@ -3,7 +3,6 @@ using Grpc.Net.Client.Balancer;
 using Grpc.Net.Client.Configuration;
 using Ozon.Route256.Practice.GatewayService.Controllers;
 using Ozon.Route256.Practice.GatewayService.Middleware;
-using Ozon.Route256.Practice.OrdersService;
 
 namespace Ozon.Route256.Practice.GatewayService;
 
@@ -35,7 +34,7 @@ public sealed class Startup
         services.AddSingleton<ResolverFactory>(factory);
 
         services
-            .AddGrpcClient<Orders.OrdersClient>(options => options.Address = new Uri("static://order-service"))
+            .AddGrpcClient<Grpc.Orders.Orders.OrdersClient>(options => options.Address = new Uri("static://order-service"))
             .ConfigureChannel(x =>
             {
                 x.Credentials = ChannelCredentials.Insecure;
@@ -45,7 +44,7 @@ public sealed class Startup
                 };
             });
 
-        services.AddGrpcClient<Customers.Customers.CustomersClient>(options =>
+        services.AddGrpcClient<Grpc.Customers.Customers.CustomersClient>(options =>
             options.Address = new Uri(_configuration.GetValue<string>("ROUTE256_CUSTOMER_SERVICE_ADDRESS")))
             .ConfigureChannel(x =>
             {

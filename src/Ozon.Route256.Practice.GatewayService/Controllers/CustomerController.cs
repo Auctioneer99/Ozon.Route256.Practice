@@ -8,9 +8,9 @@ namespace Ozon.Route256.Practice.GatewayService.Controllers;
 [Route("[controller]")]
 public sealed class CustomerController : ControllerBase
 {
-    private readonly Customers.Customers.CustomersClient _customersClient;
+    private readonly Grpc.Customers.Customers.CustomersClient _customersClient;
 
-    public CustomerController(Customers.Customers.CustomersClient customersClient)
+    public CustomerController(Grpc.Customers.Customers.CustomersClient customersClient)
     {
         _customersClient = customersClient;
     }

@@ -1,10 +1,10 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class GetClientOrdersRequestValidator : IValidator<GetClientOrdersRequest>
+public sealed class GetCustomerOrdersRequestValidator : IValidator<Grpc.Orders.GetCustomerOrdersRequest>
 {
-    public bool Validate(GetClientOrdersRequest model)
+    public bool Validate(Grpc.Orders.GetCustomerOrdersRequest model)
     {
-        if (model.ClientId < 0)
+        if (model.CustomerId < 0)
         {
             return false;
         }
@@ -19,7 +19,7 @@ public sealed class GetClientOrdersRequestValidator : IValidator<GetClientOrders
             return false;
         }
 
-        if (model.From.ToDateTime() < new DateTime(2010, 1, 1))
+        if (model.From.ToDateTime() < new DateTime(1970, 1, 1))
         {
             return false;
         }
