@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
         <PackageReference Include="Faker.Net" Version="2.0.154" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.57.0" />

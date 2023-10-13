@@ -18,7 +18,7 @@ public sealed class Startup
         services.AddGrpcServices(_configuration);
         services.AddGrpcClients(_configuration);
 
-        services.AddRepositories();
+        services.AddRepositories(_configuration);
         
         services.AddEndpointsApiExplorer();
     }
