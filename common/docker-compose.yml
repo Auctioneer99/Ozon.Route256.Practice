@@ -43,6 +43,14 @@ services:
       - "8280:81"
   
   #ozon services
+  redis-cache:
+    image: "redis:latest"
+    container_name: "redis-cache"
+    volumes:
+      - "./config/redis.conf:/usr/local/etc/redis/redis.conf"
+    ports:
+      - "8009:6379"
+  
   customer-service:
     image: "gitlab-registry.ozon.dev/cs/classroom-8/students/practice/customer-service"
     container_name: "customer-service"
