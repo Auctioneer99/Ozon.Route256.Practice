@@ -111,25 +111,39 @@ services:
     image: "confluentinc/cp-zookeeper:latest"
     container_name: "zookeeper"
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SERVER_ID: "1"
+      ZOOKEEPER_CLIENT_PORT: "2181"
+      ZOOKEEPER_SERVERS: "zookeeper:2888:3888"
+      ZOOKEEPER_PEER_PORT: "2888"
+      ZOOKEEPER_LEADER_PORT: "3888"
+      ZOOKEEPER_TICK_TIME: "2000"
+      ZOOKEEPER_INIT_LIMIT: "10"
+      ZOOKEEPER_SYNC_LIMIT: "5"
+      ZOOKEEPER_MAX_CLIENT_CONNS: "5"
     ports:
-      - 22181:2181
-
+      - "2181:2181"
+    volumes:
+      - "../kafka/zookeeper-data:/var/lib/zookeeper/data"
+      - "../kafka/zookeeper-log:/var/lib/zookeeper/log"
+  
   broker-1:
     image: "confluentinc/cp-kafka:latest"
     container_name: "broker-1"
     depends_on:
       - zookeeper
     ports:
-      - 29091:29091
+      - "29091:29091"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-1:9092,PLAINTEXT_HOST://localhost:29091
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_BROKER_ID: "1"
+      KAFKA_BROKER_RACK: "1"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "LISTENER_INTERNAL://:9091,LISTENER_LOCAL://:29091"
+      KAFKA_ADVERTISED_LISTENERS: "LISTENER_INTERNAL://broker-1:9091,LISTENER_LOCAL://localhost:29091"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "LISTENER_INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: "2"
+    volumes:
+      - "../kafka/broker1-data:/var/lib/kafka/data"
   
   broker-2:
     image: "confluentinc/cp-kafka:latest"
@@ -137,14 +151,18 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - 29092:29092
+      - "29092:29092"
     environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker-2:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_BROKER_ID: "2"
+      KAFKA_BROKER_RACK: "2"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENERS: "LISTENER_INTERNAL://:9091,LISTENER_LOCAL://:29092"
+      KAFKA_ADVERTISED_LISTENERS: "LISTENER_INTERNAL://broker-2:9091,LISTENER_LOCAL://localhost:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "LISTENER_INTERNAL"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "LISTENER_INTERNAL:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: "2"
+    volumes:
+      - "../kafka/broker2-data:/var/lib/kafka/data"
 
   customer-service-db:
     image: "postgres:latest"
@@ -155,7 +173,7 @@ services:
       POSTGRES_PASSWORD: postgres
     container_name: "customer-service-db"
     volumes:
-    - ../pgdata/Customers:/var/lib/postgresql/data
+      - "../pgdata/Customers:/var/lib/postgresql/data"
     ports:
       - "5532:5432"
       
@@ -169,6 +187,6 @@ services:
       POSTGRES_PASSWORD: postgres
     container_name: "orders-service-db"
     volumes:
-      - ../pgdata/Orders:/var/lib/postgresql/data
+      - "../pgdata/Orders:/var/lib/postgresql/data"
     ports:
       - "5533:5432"
