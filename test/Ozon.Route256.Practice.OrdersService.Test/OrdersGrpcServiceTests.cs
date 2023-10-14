@@ -65,12 +65,13 @@ public sealed class OrdersGrpcServiceTests
 
     private RegionDto CreateRegionDto(long id)
     {
-        return new RegionDto(id, id.ToString());
+        return new RegionDto(id, id.ToString(), id, id);
     }
 
     private RegionDto CreateRegionDto(string name)
     {
-        return new RegionDto(long.Parse(name), name);
+        var id = long.Parse(name);
+        return new RegionDto(id, name, id, id);
     }
     
     private IOrderRepository FakeOrderRepository()
