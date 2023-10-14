@@ -28,11 +28,24 @@ services:
       - broker-1
       - service-discovery
       - logistics-simulator
+      - customer-service
     environment: 
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
+      - "Kafka:Consumers:PreOrder:Topic=pre_orders"
+      - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
+      - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
+      - "Kafka:Consumers:PreOrder:Config:EnableAutoCommit=false"
+      - "Kafka:Consumers:OrdersEvent:Topic=orders_events"
+      - "Kafka:Consumers:OrdersEvent:Config:GroupId=order_service_orders_events"
+      - "Kafka:Consumers:OrdersEvent:Config:BootstrapServers=broker-1:9091"
+      - "Kafka:Consumers:OrdersEvent:Config:EnableAutoCommit=false"
+      - "Kafka:Producers:NewOrder:Topic=new_orders"
+      - "Kafka:Producers:NewOrder:Config:BootstrapServers=broker-1:9091"
+      - "Redis:ConnectionString=redis-cache-orders-1:6379"
+      - "Redis:TTL=5"
     ports:
       - "8180:81"
   
@@ -46,11 +59,24 @@ services:
       - broker-1
       - service-discovery
       - logistics-simulator
+      - customer-service
     environment:
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
+      - "Kafka:Consumers:PreOrder:Topic=pre_orders"
+      - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
+      - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
+      - "Kafka:Consumers:PreOrder:Config:EnableAutoCommit=false"
+      - "Kafka:Consumers:OrdersEvent:Topic=orders_events"
+      - "Kafka:Consumers:OrdersEvent:Config:GroupId=order_service_orders_events"
+      - "Kafka:Consumers:OrdersEvent:Config:BootstrapServers=broker-1:9091"
+      - "Kafka:Consumers:OrdersEvent:Config:EnableAutoCommit=false"
+      - "Kafka:Producers:NewOrder:Topic=new_orders"
+      - "Kafka:Producers:NewOrder:Config:BootstrapServers=broker-1:9091"
+      - "Redis:ConnectionString=redis-cache-orders-2:6379"
+      - "Redis:TTL=5"
     ports:
       - "8280:81"
   
@@ -94,7 +120,7 @@ services:
     environment:
       - "Redis:ConnectionString=redis-cache-logistics:6379"
       - "Kafka:Consumers:NewOrder:Topic=new_orders"
-      - "Kafka:Consumers:NewOrder:Config:GroupId=new_orders"
+      - "Kafka:Consumers:NewOrder:Config:GroupId=logistics_simulator_new_orders"
       - "Kafka:Consumers:NewOrder:Config:BootstrapServers=broker-1:9091"
       - "Kafka:Consumers:NewOrder:Config:EnableAutoCommit=false"
       - "Kafka:Producer:Config:BootstrapServers=broker-1:9091"
