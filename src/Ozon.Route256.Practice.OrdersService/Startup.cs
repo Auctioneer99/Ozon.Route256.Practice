@@ -16,7 +16,7 @@ public sealed class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddConsumers();
+        services.AddKafka();
         
         services.AddGrpcServices(_configuration);
         services.AddGrpcClients(_configuration);

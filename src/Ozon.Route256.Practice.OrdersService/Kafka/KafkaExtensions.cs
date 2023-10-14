@@ -7,7 +7,7 @@ namespace Ozon.Route256.Practice.OrdersService.Kafka;
 
 public static class KafkaExtensions
 {
-    public static IServiceCollection AddConsumers(this IServiceCollection services)
+    public static IServiceCollection AddKafka(this IServiceCollection services)
     {
         services
             .AddOptions<KafkaProducerConfig>()
