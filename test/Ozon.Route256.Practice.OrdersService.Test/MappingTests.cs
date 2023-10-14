@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
-public sealed class MappingTest
+public sealed class MappingTests
 {
     [Fact]
     public void OrderStateTest()
