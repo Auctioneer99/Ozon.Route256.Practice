@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Redis;
 
-public class RedisDatabaseFactory : IRedisDatabaseFactory, IDisposable
+public sealed class RedisDatabaseFactory : IRedisDatabaseFactory, IDisposable
 {
     private readonly IConnectionMultiplexer _connectionMultiplexer;
 

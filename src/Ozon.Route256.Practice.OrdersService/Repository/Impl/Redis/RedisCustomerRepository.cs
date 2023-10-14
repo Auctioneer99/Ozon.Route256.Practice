@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
+using Ozon.Route256.Practice.OrdersService.Repository.Impl.Grpc;
 using StackExchange.Redis;
 
 namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Redis;
 
-public class RedisCustomerRepository : ICustomerRepository
+public sealed class RedisCustomerRepository : ICustomerRepository
 {
     private readonly IDatabase _database;
     private readonly IServer _server;
@@ -44,42 +45,13 @@ public class RedisCustomerRepository : ICustomerRepository
     {
         token.ThrowIfCancellationRequested();
 
-        var keys = ids
-            .Select(id => new RedisKey(GetKey(id)))
-            .ToArray();
-        
-        var values = await _database
-            .StringGetAsync(keys)
-            .WaitAsync(token);
+        var valueTasks = ids
+            .Select(id => GetById(id, token))
+            .ToList();
 
-        var count = ids.Count();
-        var result = new List<CustomerDto>(count);
-        
-        foreach (var value in values)
-        {
-            var dto = ConvertToDto(value);
+        var values = await Task.WhenAll(valueTasks);
 
-            if (dto != null)
-            {
-                result.Add(dto);
-            }
-        }
-
-        if (values.Length == count)
-        {
-            return result.ToArray();
-        }
-        
-        foreach (var id in ids)
-        {
-            if (result.Any(dto => dto.Id == id) == false)
-            {
-                var cached = await UpdateValue(id, token);
-                result.Add(cached);
-            }
-        }
-
-        return result.ToArray();
+        return values;
     }
 
     private async Task<CustomerDto> UpdateValue(long id, CancellationToken token)

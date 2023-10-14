@@ -1,13 +1,15 @@
 ﻿using System.Collections.Concurrent;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
-namespace Ozon.Route256.Practice.OrdersService.Repository.Impl;
+namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.InMemory;
 
 public sealed class InMemoryStorage
 {
     public readonly ConcurrentDictionary<long, OrderDto> Orders = new(2, 10);
     public readonly ConcurrentDictionary<long, AddressDto> Addresses = new(2, 10);
     public readonly ConcurrentDictionary<long, RegionDto> Regions = new(2, 10);
+
+    public long AddressIdSequence { get; set; }
 
     public InMemoryStorage()
     {
@@ -52,6 +54,8 @@ public sealed class InMemoryStorage
 
         foreach (var a in addresses)
             Addresses[a.Id] = a;
+
+        AddressIdSequence = 51;
     }
 
     private void FakeRegions()

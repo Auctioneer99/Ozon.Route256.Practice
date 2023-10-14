@@ -10,6 +10,8 @@ public interface IRegionRepository
 
     public Task<RegionDto[]> FindManyById(IEnumerable<long> ids, CancellationToken token);
 
+    public Task<RegionDto> GetById(long id, CancellationToken token);
+    
     public Task<RegionDto[]> GetManyById(IEnumerable<long> ids, CancellationToken token);
     
     public Task<RegionDto[]> GetManyByName(IEnumerable<string> regionNames, CancellationToken token);

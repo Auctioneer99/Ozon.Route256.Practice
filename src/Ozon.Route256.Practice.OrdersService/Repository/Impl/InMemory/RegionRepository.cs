@@ -1,7 +1,7 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
-namespace Ozon.Route256.Practice.OrdersService.Repository.Impl;
+namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.InMemory;
 
 public sealed class RegionRepository : IRegionRepository
 {
@@ -50,6 +50,18 @@ public sealed class RegionRepository : IRegionRepository
         var regions = FindDto(ids, token)
             .ToArray();
         return Task.FromResult(regions);
+    }
+
+    public Task<RegionDto> GetById(long id, CancellationToken token)
+    {
+        if (token.IsCancellationRequested)
+        {
+            return Task.FromCanceled<RegionDto>(token);
+        }
+
+        return _storage.Regions.TryGetValue(id, out var region)
+            ? Task.FromResult(region)
+            : throw new NotFoundException($"Регион с ID = {id} не найден");
     }
 
     public Task<RegionDto[]> GetManyById(IEnumerable<long> ids, CancellationToken token)
