@@ -1,13 +1,14 @@
-﻿using Ozon.Route256.Practice.OrdersService.Repository.Dto;
+﻿using Ozon.Route256.Practice.OrdersService.Grpc.Customers;
+using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
-namespace Ozon.Route256.Practice.OrdersService.Repository.Impl;
+namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Grpc;
 
 public sealed class CustomerRepository : ICustomerRepository
 {
-    private readonly Grpc.Customers.Customers.CustomersClient _customersClient;
+    private readonly Customers.CustomersClient _customersClient;
 
-    public CustomerRepository(Grpc.Customers.Customers.CustomersClient customersClient)
+    public CustomerRepository(Customers.CustomersClient customersClient)
     {
         _customersClient = customersClient;
     }
@@ -16,7 +17,7 @@ public sealed class CustomerRepository : ICustomerRepository
     {
         token.ThrowIfCancellationRequested();
 
-        var response = await _customersClient.GetCustomerAsync(new Grpc.Customers.GetCustomerByIdRequest() { Id = (int)id }, cancellationToken: token);
+        var response = await _customersClient.GetCustomerAsync(new GetCustomerByIdRequest() { Id = (int)id }, cancellationToken: token);
 
         return response.ToDto();
     }

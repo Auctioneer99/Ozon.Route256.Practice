@@ -13,6 +13,8 @@ public interface IOrderRepository
     public Task<OrderDto[]> GetAll(OrderRequestDto orderRequest, CancellationToken token);
 
     public Task<OrderDto[]> GetByCustomerId(OrderRequestByCustomerDto orderRequest, CancellationToken token);
+
+    public Task Add(OrderDto order, CancellationToken token);
     
     public Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token);
 }

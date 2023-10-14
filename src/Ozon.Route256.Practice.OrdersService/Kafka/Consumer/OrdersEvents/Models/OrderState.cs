@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Ozon.Route256.Practice.GatewayService.Models;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer.OrdersEvents.Models;
 
 [JsonConverter(typeof(StringEnumConverter))]
 public enum OrderState

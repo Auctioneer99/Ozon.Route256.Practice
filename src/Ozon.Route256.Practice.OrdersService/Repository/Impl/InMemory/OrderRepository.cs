@@ -1,7 +1,7 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
-namespace Ozon.Route256.Practice.OrdersService.Repository.Impl;
+namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.InMemory;
 
 public sealed class OrderRepository : IOrderRepository
 {
@@ -153,6 +153,18 @@ public sealed class OrderRepository : IOrderRepository
         }
 
         return Task.FromResult(data.ToArray());
+    }
+
+    public Task Add(OrderDto order, CancellationToken token)
+    {
+        if (token.IsCancellationRequested)
+        {
+            return Task.FromCanceled(token);
+        }
+
+        _storage.Orders[order.Id] = order;
+        
+        return Task.CompletedTask;
     }
 
     public async Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token)

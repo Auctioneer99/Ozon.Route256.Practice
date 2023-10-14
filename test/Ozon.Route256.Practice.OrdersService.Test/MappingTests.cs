@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
-public sealed class MappingTest
+public sealed class MappingTests
 {
     [Fact]
     public void OrderStateTest()
@@ -37,7 +37,7 @@ public sealed class MappingTest
             1,
             DateTime.UtcNow);
 
-        var region = new RegionDto(1, "Moscow");
+        var region = new RegionDto(1, "Moscow", 55.7522, 37.6156);
 
         var customer = new CustomerDto(1, "asd", "dsa", "123123123", "a@a.a");
 
@@ -86,7 +86,7 @@ public sealed class MappingTest
             45.6546,
             43.3434);
 
-        var region = new RegionDto(2, "Moscow");
+        var region = new RegionDto(2, "Moscow", 55.7522, 37.6156);
 
         var mapped = model.FromDto(region);
 
@@ -226,5 +226,91 @@ public sealed class MappingTest
         Assert.Equal(model.From.ToDateTime(), mapped.From);
         Assert.Equal(model.Page.SkipCount, mapped.SkipCount);
         Assert.Equal(model.Page.TakeCount, mapped.TakeCount);
+    }
+
+    [Fact]
+    public void OrderKafkaStateTest()
+    {
+        var state = Kafka.Consumer.OrdersEvents.Models.OrderState.Created;
+
+        var mapped = state.ToDto();
+        
+        Assert.Equal(OrderState.Created, mapped);
+    }
+
+    [Fact]
+    public void OrderSourceTest()
+    {
+        var source = Kafka.Consumer.PreOrders.Models.OrderSource.Mobile;
+
+        var mapped = source.ToDto();
+        
+        Assert.Equal(OrderType.SecondType, mapped);
+    }
+
+    [Fact]
+    public void PreOrderTest()
+    {
+        var order = new Kafka.Consumer.PreOrders.Models.PreOrder(
+            1,
+            Kafka.Consumer.PreOrders.Models.OrderSource.Web,
+            new Kafka.Consumer.PreOrders.Models.PreCustomer(
+                1,
+                new Kafka.Consumer.PreOrders.Models.PreAddress(
+                    "Moscow",
+                    "City",
+                    "Street",
+                    "Building",
+                    "Apartment",
+                    12.12,
+                    23.32)
+            ),
+            new Kafka.Consumer.PreOrders.Models.PreGood[1]
+            {
+                new Kafka.Consumer.PreOrders.Models.PreGood(
+                    1,
+                    "Good",
+                    2,
+                    2,
+                    2)
+            });
+
+        var date = DateTime.UtcNow;
+        var mapped = order.ToDto(2, 3, date);
+        
+        Assert.Equal(order.Id, mapped.Id);
+        Assert.Equal(order.Goods.Sum(g => g.Quantity), mapped.Count);
+        Assert.Equal(order.Goods.Sum(g => g.Price), mapped.TotalSum);
+        Assert.Equal(order.Goods.Sum(g => g.Weight), mapped.TotalWeight);
+        Assert.Equal(OrderType.FirstType, mapped.Type);
+        Assert.Equal(OrderState.Created, mapped.State);
+        Assert.Equal(2, mapped.RegionFromId);
+        Assert.Equal(order.Customer.Id, mapped.CustomerId);
+        Assert.Equal(3, mapped.AddressId);
+        Assert.Equal(date, mapped.CreatedAt);
+    }
+
+    [Fact]
+    public void PreAddressTest()
+    {
+        var address = new Kafka.Consumer.PreOrders.Models.PreAddress(
+            "Moscow",
+            "City",
+            "Street",
+            "Building",
+            "Apartment",
+            20.3,
+            54.3);
+
+        var mapped = address.ToDto(3);
+        
+        Assert.Equal(0, mapped.Id);
+        Assert.Equal(3, mapped.RegionId);
+        Assert.Equal(address.City, mapped.City);
+        Assert.Equal(address.Street, mapped.Street);
+        Assert.Equal(address.Building, mapped.Building);
+        Assert.Equal(address.Apartment, mapped.Apartment);
+        Assert.Equal(address.Latitude, mapped.Latitude);
+        Assert.Equal(address.Longitude, mapped.Longitude);
     }
 }

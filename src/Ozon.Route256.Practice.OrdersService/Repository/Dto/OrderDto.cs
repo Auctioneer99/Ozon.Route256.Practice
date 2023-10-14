@@ -10,5 +10,4 @@ public sealed record OrderDto(
     long RegionFromId,
     long CustomerId,
     long AddressId,
-    DateTime CreatedAt
-);
+    DateTime CreatedAt);

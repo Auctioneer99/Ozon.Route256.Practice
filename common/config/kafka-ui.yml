@@ -1,0 +1,11 @@
+auth:
+  type: DISABLED
+kafka:
+  clusters:
+  - bootstrapServers: broker-1:9091,broker-2:9091
+    name: ozon
+    properties: {}
+    readOnly: false
+rbac:
+  roles: []
+webclient: {}

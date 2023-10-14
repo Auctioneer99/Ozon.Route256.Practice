@@ -1,4 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.GrpcServices;
+using Ozon.Route256.Practice.OrdersService.Kafka;
 using Ozon.Route256.Practice.OrdersService.Repository;
 
 namespace Ozon.Route256.Practice.OrdersService;
@@ -15,10 +16,12 @@ public sealed class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddKafka();
+        
         services.AddGrpcServices(_configuration);
         services.AddGrpcClients(_configuration);
 
-        services.AddRepositories();
+        services.AddRepositories(_configuration);
         
         services.AddEndpointsApiExplorer();
     }

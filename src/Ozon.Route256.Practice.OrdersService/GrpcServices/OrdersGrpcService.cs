@@ -13,9 +13,11 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
     private readonly ILogisticsRepository _logisticsRepository;
     private readonly ICustomerRepository _customerRepository;
 
-    public OrdersGrpcService(IRegionRepository regionRepository, IOrderRepository orderRepository,
+    public OrdersGrpcService(IRegionRepository regionRepository, 
+        IOrderRepository orderRepository,
         IAddressRepository addressRepository,
-        ILogisticsRepository logisticsRepository, ICustomerRepository customerRepository)
+        ILogisticsRepository logisticsRepository, 
+        ICustomerRepository customerRepository)
     {
         _regionRepository = regionRepository;
         _orderRepository = orderRepository;
