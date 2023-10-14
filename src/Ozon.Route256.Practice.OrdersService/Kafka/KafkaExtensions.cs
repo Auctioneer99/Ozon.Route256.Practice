@@ -15,6 +15,7 @@ public static class KafkaExtensions
 
         services.AddSingleton<IProducerProvider, ProducerProvider>();
         services.AddScoped<NewOrderProducer>();
+        services.AddScoped<NewOrderValidator>();
         
         services
             .AddOptions<PreOrderConsumerConfig>()

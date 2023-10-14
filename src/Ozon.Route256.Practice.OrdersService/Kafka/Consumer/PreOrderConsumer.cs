@@ -110,6 +110,14 @@ public sealed class PreOrderConsumer : BackgroundService
         await orderRepository.Add(order, token);
 
         var producer = scope.ServiceProvider.GetRequiredService<NewOrderProducer>();
+        var validator = scope.ServiceProvider.GetRequiredService<NewOrderValidator>();
+
+        if (validator.ValidateDistance(preOrder.Customer.Address, regionFrom) == false)
+        {
+            _logger.LogInformation("Пропускаем заказ, растояние больше 5000");
+            return;
+        }
+        
         await producer.Produce(order.Id, token);
     }
 }

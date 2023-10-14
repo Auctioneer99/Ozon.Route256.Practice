@@ -2,5 +2,7 @@
 
 public sealed record RegionDto(
     long Id,
-    string Name
+    string Name,
+    double Latitude,
+    double Longitude
 );

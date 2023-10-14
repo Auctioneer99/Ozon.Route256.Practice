@@ -60,8 +60,8 @@ public sealed class InMemoryStorage
 
     private void FakeRegions()
     {
-        Regions[1] = new RegionDto(1, "Moscow");
-        Regions[2] = new RegionDto(2, "StPetersburg");
-        Regions[3] = new RegionDto(3, "Novosibirsk");
+        Regions[1] = new RegionDto(1, "Moscow", 55.7522, 37.6156);
+        Regions[2] = new RegionDto(2, "StPetersburg", 55.01, 82.55);
+        Regions[3] = new RegionDto(3, "Novosibirsk", 45.32, 68.23);
     }
 }
