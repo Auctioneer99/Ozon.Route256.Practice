@@ -129,8 +129,8 @@ services:
     ports:
       - "2181:2181"
     volumes:
-      - "../kafka/zookeeper-data:/var/lib/zookeeper/data"
-      - "../kafka/zookeeper-log:/var/lib/zookeeper/log"
+      - "../kafkadata/zookeeper-data:/var/lib/zookeeper/data"
+      - "../kafkadata/zookeeper-log:/var/lib/zookeeper/log"
   
   broker-1:
     image: "confluentinc/cp-kafka:latest"
@@ -151,7 +151,7 @@ services:
     ports:
       - "29091:29091"
     volumes:
-      - "../kafka/broker1-data:/var/lib/kafka/data"
+      - "../kafkadata/broker1-data:/var/lib/kafka/data"
   
   broker-2:
     image: "confluentinc/cp-kafka:latest"
@@ -172,7 +172,7 @@ services:
     ports:
       - "29092:29092"
     volumes:
-      - "../kafka/broker2-data:/var/lib/kafka/data"
+      - "../kafkadata/broker2-data:/var/lib/kafka/data"
 
   kafka-ui:
     image: "provectuslabs/kafka-ui:latest"
