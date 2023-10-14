@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.OrdersEvents.Models;
 using Ozon.Route256.Practice.OrdersService.Repository;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
@@ -84,6 +85,13 @@ public sealed class OrdersEventConsumer : BackgroundService
         
         var orderRepository = scope.ServiceProvider.GetRequiredService<IOrderRepository>();
 
-        await orderRepository.UpdateOrderStatus(ordersEvent.Id, ordersEvent.NewState.ToDto(), token);
+        try
+        {
+            await orderRepository.UpdateOrderStatus(ordersEvent.OrderId, ordersEvent.OrderState.ToDto(), token);
+        }
+        catch (NotFoundException exception)
+        {
+            // ignored
+        }
     }
 }
