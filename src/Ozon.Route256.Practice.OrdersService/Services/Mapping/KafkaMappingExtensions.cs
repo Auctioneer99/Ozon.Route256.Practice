@@ -1,16 +1,20 @@
-﻿using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.Models;
-using Ozon.Route256.Practice.OrdersService.Repository.Dto;
+﻿using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
 public static class KafkaMappingExtensions
 {
-    public static OrderType ToDto(this OrderSource source)
+    public static OrderState ToDto(this Kafka.Consumer.OrdersEvents.Models.OrderState state)
+    {
+        return (OrderState)state;
+    }
+    
+    public static OrderType ToDto(this Kafka.Consumer.PreOrders.Models.OrderSource source)
     {
         return (OrderType)source;
     }
     
-    public static OrderDto ToDto(this PreOrder order, long regionFromId, long addressId, DateTime createdAt)
+    public static OrderDto ToDto(this Kafka.Consumer.PreOrders.Models.PreOrder order, long regionFromId, long addressId, DateTime createdAt)
     {
         return new OrderDto(
             order.Id,
@@ -25,7 +29,7 @@ public static class KafkaMappingExtensions
             createdAt);
     }
 
-    public static AddressDto ToDto(this PreAddress address, long regionId)
+    public static AddressDto ToDto(this Kafka.Consumer.PreOrders.Models.PreAddress address, long regionId)
     {
         return new AddressDto(
             0,

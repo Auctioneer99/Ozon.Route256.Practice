@@ -1,13 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.Models;
+using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
 using Ozon.Route256.Practice.OrdersService.Repository;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
 
-namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders;
 
 public sealed class PreOrderConsumer : BackgroundService
 {

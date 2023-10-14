@@ -1,4 +1,4 @@
-﻿using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.Producer;

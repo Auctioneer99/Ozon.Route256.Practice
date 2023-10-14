@@ -1,6 +1,6 @@
 ﻿using Confluent.Kafka;
 
-namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
+namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders;
 
 public sealed class PreOrderConsumerConfig
 {
