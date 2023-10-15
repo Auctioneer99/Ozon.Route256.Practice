@@ -111,13 +111,13 @@ public class PostgresOrderRepository : IOrderRepository
                 orderField = "total_weight";
                 break;
             case OrderField.OrderType:
-                orderField = "order_type";
+                orderField = "type";
                 break;
             case OrderField.CreatedAt:
                 orderField = "created_at";
                 break;
             case OrderField.OrderState:
-                orderField = "order_state";
+                orderField = "state";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -142,7 +142,7 @@ public class PostgresOrderRepository : IOrderRepository
         string sql = @$"
             select {Fields}
             from {Table}
-            where order_type = :type
+            where type = :type
                 and region_id in (:regions)
             {(orderField != null ? $"order by {orderField} {orderDir}" : "")}
             limit :limit
@@ -181,7 +181,7 @@ public class PostgresOrderRepository : IOrderRepository
     public async Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token)
     {
         const string sql = @$"
-            update {Table} set order_state = :state
+            update {Table} set state = :state
             where id = :id;";
 
         await using var connection = _factory.GetConnection();
