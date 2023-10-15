@@ -10,6 +10,17 @@
         "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS": "http://localhost:8480",
         "ROUTE256_CUSTOMER_SERVICE_ADDRESS": "http://localhost:8381"
       }
+    },
+    "Ozon.Route256.Practice.OrdersService.Migrate": {
+      "commandName": "Project",
+      "commandLineArgs": "migrate",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ROUTE256_GRPC_PORT": "5001",
+        "ROUTE256_SD_ADDRESS": "http://localhost:8880",
+        "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS": "http://localhost:8480",
+        "ROUTE256_CUSTOMER_SERVICE_ADDRESS": "http://localhost:8381"
+      }
     }
   }
 }
