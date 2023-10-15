@@ -10,6 +10,6 @@ public static class NpgsqlExtensions
             new NpgsqlParameter()
             {
                 ParameterName = name,
-                Value = value
+                Value = value,
             });
 }

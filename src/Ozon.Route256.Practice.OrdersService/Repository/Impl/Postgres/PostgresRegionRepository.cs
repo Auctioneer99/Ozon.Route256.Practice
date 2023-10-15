@@ -61,7 +61,7 @@ public class PostgresRegionRepository : IRegionRepository
         const string sql = @$"
             select {Fields}
             from {Table}
-            where id in (:ids);";
+            where id = any(:ids);";
 
         await using var connection = _factory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);
@@ -80,7 +80,7 @@ public class PostgresRegionRepository : IRegionRepository
         const string sql = @$"
             select {Fields}
             from {Table}
-            where name in (:names);";
+            where name = any(:names);";
 
         await using var connection = _factory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);

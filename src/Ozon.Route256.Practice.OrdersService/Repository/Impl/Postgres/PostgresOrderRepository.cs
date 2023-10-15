@@ -52,12 +52,17 @@ public class PostgresOrderRepository : IOrderRepository
 
     public async Task<OrderDto[]> GetByCustomerId(OrderRequestByCustomerDto orderRequest, CancellationToken token)
     {
-        const string sql = @$"
+        string sql = @$"
             select {Fields}
             from {Table}
-            where customer_id = :id and created_at >= :from
-            limit :limit 
-            offset :offset;";
+            where customer_id = :id and created_at >= :from";
+
+        if (orderRequest.TakeCount > 0)
+        {
+            sql += " limit :limit";
+        }
+        
+        sql += " offset :offset;";
 
         await using var connection = _factory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);
@@ -138,15 +143,20 @@ public class PostgresOrderRepository : IOrderRepository
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
+
         string sql = @$"
             select {Fields}
             from {Table}
-            where type = :type
-                and region_id in (:regions)
-            {(orderField != null ? $"order by {orderField} {orderDir}" : "")}
-            limit :limit
-            offset :offset;";
+            where {(orderRequest.OrderType != OrderType.Undefined ? "type = :type and " : "")}
+                region_from_id = any(:regions)
+            {(orderField != null ? $"order by {orderField} {orderDir}" : "")}";
+
+        if (orderRequest.TakeCount > 0)
+        {
+            sql += " limit :limit";
+        }
+        
+        sql += " offset :offset;";
 
         await using var connection = _factory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);

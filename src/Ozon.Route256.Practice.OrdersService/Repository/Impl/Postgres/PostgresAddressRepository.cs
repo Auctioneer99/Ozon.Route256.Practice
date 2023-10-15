@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Npgsql;
+using NpgsqlTypes;
 using Ozon.Route256.Practice.OrdersService.Dal.Common;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
@@ -63,13 +64,13 @@ public class PostgresAddressRepository : IAddressRepository
     {
         const string sql = @$"
             select {Fields}
-            from {Table}
-            where id in (:ids);";
+            from {Table};
+            where id = any(:ids);";
 
         await using var connection = _factory.GetConnection();
         await using var command = new NpgsqlCommand(sql, connection);
 
-        command.Parameters.Add("ids", ids);
+        command.Parameters.Add("ids", ids.ToList());
         
         await connection.OpenAsync(token);
         await using var reader = await command.ExecuteReaderAsync(token);
