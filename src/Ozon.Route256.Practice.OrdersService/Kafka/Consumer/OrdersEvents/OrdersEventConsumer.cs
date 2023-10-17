@@ -72,13 +72,22 @@ public sealed class OrdersEventConsumer : BackgroundService
         }
     }
 
-    private async Task HandleValue(ConsumeResult<string, string> consumeResult, CancellationToken token)
+    public async Task<bool> HandleValue(ConsumeResult<string, string> consumeResult, CancellationToken token)
     {
-        var ordersEvent = JsonSerializer.Deserialize<OrdersEvent>(consumeResult.Message.Value);
+        OrdersEvent? ordersEvent;
+        
+        try
+        {
+            ordersEvent = JsonSerializer.Deserialize<OrdersEvent>(consumeResult.Message.Value);
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
 
         if (ordersEvent == null)
         {
-            return;
+            return false;
         }
         
         using var scope = _scopeFactory.CreateScope();
@@ -88,10 +97,12 @@ public sealed class OrdersEventConsumer : BackgroundService
         try
         {
             await orderRepository.UpdateOrderStatus(ordersEvent.OrderId, ordersEvent.OrderState.ToDto(), token);
+            
+            return true;
         }
         catch (NotFoundException exception)
         {
-            // ignored
+            return false;
         }
     }
 }
