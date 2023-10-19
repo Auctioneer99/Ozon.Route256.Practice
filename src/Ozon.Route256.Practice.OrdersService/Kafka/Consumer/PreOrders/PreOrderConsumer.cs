@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Transactions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
@@ -125,7 +126,6 @@ public sealed class PreOrderConsumer : BackgroundService
             }
         
             var order = preOrder.ToDto(regionFrom.Id, address.Id, consumeResult.Message.Timestamp.UtcDateTime);
-
             await orderRepository.Add(order, token);
             
             ts.Complete();
@@ -139,7 +139,7 @@ public sealed class PreOrderConsumer : BackgroundService
         }
         
         var producer = scope.ServiceProvider.GetRequiredService<NewOrderProducer>();
-        await producer.Produce(order.Id, token);
+        await producer.Produce(preOrder.Id, token);
 
         return true;
     }
