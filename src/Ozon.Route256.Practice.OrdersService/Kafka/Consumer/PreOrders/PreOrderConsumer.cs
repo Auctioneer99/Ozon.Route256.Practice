@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Transactions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
@@ -75,13 +74,22 @@ public sealed class PreOrderConsumer : BackgroundService
         }
     }
 
-    private async Task HandleValue(ConsumeResult<string, string> consumeResult, CancellationToken token)
+    public async Task<bool> HandleValue(ConsumeResult<string, string> consumeResult, CancellationToken token)
     {
-        var preOrder = JsonSerializer.Deserialize<PreOrder>(consumeResult.Message.Value);
+        PreOrder? preOrder;
+
+        try
+        {
+            preOrder = JsonSerializer.Deserialize<PreOrder>(consumeResult.Message.Value);
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
 
         if (preOrder == null)
         {
-            return;
+            return false;
         }
 
         using var scope = _scopeFactory.CreateScope();
@@ -93,7 +101,7 @@ public sealed class PreOrderConsumer : BackgroundService
         var regionFrom = await regionRepository.FindByName(preOrder.Customer.Address.Region, token);
         if (regionFrom == null)
         {
-            return;
+            return false;
         }
         var address = await addressRepository.FindByCoordinates(
             preOrder.Customer.Address.Latitude, 
@@ -127,10 +135,12 @@ public sealed class PreOrderConsumer : BackgroundService
         if (validator.ValidateDistance(preOrder.Customer.Address, regionFrom) == false)
         {
             _logger.LogInformation("Пропускаем заказ, растояние больше 5000");
-            return;
+            return false;
         }
         
         var producer = scope.ServiceProvider.GetRequiredService<NewOrderProducer>();
-        await producer.Produce(preOrder.Id, token);
+        await producer.Produce(order.Id, token);
+
+        return true;
     }
 }
