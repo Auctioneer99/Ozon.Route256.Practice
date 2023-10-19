@@ -4,7 +4,7 @@ using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
-public class KafkaTests
+public class KafkaValidatorTests
 {
     private readonly NewOrderValidator _newOrderValidator = new();
 
