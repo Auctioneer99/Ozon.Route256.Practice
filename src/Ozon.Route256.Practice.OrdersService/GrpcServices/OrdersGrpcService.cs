@@ -116,7 +116,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
             OrderField.NoneField,
             0,
             0,
-            OrderType.UndefinedType,
+            OrderType.Undefined,
             regions.Select(r => r.Id)
         );
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);

@@ -7,10 +7,10 @@ namespace Ozon.Route256.Practice.GatewayService.Models;
 [JsonConverter(typeof(StringEnumConverter))]
 public enum OrderType 
 {
-    [EnumMember(Value = "UndefinedType")]
-    UndefinedType = 0,
-    [EnumMember(Value = "FirstType")]
-    FirstType = 1,
-    [EnumMember(Value = "SecondType")]
-    SecondType = 2
+    [EnumMember(Value = "Web")]
+    Web = 1,
+    [EnumMember(Value = "Mobile")]
+    Mobile = 2,
+    [EnumMember(Value = "Api")]
+    Api = 3
 }

@@ -2,7 +2,8 @@
 
 public enum OrderType
 {
-    UndefinedType = 0,
-    FirstType = 1,
-    SecondType = 2
+    Undefined = 0,
+    Web = 1,
+    Mobile = 2,
+    Api = 3
 }

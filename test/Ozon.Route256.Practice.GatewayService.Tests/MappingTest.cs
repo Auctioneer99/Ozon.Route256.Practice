@@ -9,9 +9,9 @@ public sealed class MappingTest
     [Fact]
     public void OrderTypeTest()
     {
-        var model = OrderType.FirstType;
+        var model = OrderType.Web;
         
-        Assert.True(model.FromDto().ToDto() == OrderType.FirstType);
+        Assert.True(model.FromDto().ToDto() == OrderType.Web);
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public sealed class MappingTest
             Count = 3,
             TotalSum = 4,
             TotalWeight = 5,
-            Type = Grpc.Orders.Order.Types.OrderType.FirstType,
+            Type = Grpc.Orders.Order.Types.OrderType.Web,
             CreatedAt = DateTime.Now.ToUniversalTime().ToTimestamp(),
             RegionFrom = "RU",
             State = Grpc.Orders.Order.Types.OrderState.Cancelled,
@@ -156,7 +156,7 @@ public sealed class MappingTest
             {
                 "RU"
             },
-            OrderTypeFilter = OrderType.FirstType,
+            OrderTypeFilter = OrderType.Web,
             Page = new()
             {
                 SkipCount = 2,
@@ -169,7 +169,7 @@ public sealed class MappingTest
         var mapped = model.FromDto();
         
         Assert.Equal(model.RegionFilter, mapped.RegionFilter);
-        Assert.Equal(Grpc.Orders.Order.Types.OrderType.FirstType, mapped.OrderTypeFilter);
+        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Web, mapped.OrderTypeFilter);
         Assert.Equal(model.Page.SkipCount, mapped.Page.SkipCount);
         Assert.Equal(model.Page.TakeCount, mapped.Page.TakeCount);
         Assert.Equal(Grpc.Orders.SortType.Ascending, mapped.Sort);

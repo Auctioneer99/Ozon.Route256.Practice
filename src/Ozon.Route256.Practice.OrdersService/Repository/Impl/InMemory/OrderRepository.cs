@@ -24,7 +24,7 @@ public sealed class OrderRepository : IOrderRepository
             : throw new NotFoundException($"Заказ с Id = {orderId} не найден");
     }
     
-    public Task<OrderDto?> FindOrder(long orderId, CancellationToken token)
+    public Task<OrderDto?> FindById(long orderId, CancellationToken token)
     {
         if (token.IsCancellationRequested)
         {
@@ -67,11 +67,8 @@ public sealed class OrderRepository : IOrderRepository
         
         data = data.Where(o => orderRequest.Regions.Contains(o.RegionFromId));
 
-        if (orderRequest.OrderType != OrderType.UndefinedType)
-        {
-            data = data
-                .Where(o => o.Type == orderRequest.OrderType);
-        }
+        data = data
+            .Where(o => o.Type == orderRequest.OrderType);
 
         Func<OrderDto, object>? selector = null;
         switch (orderRequest.OrderField)

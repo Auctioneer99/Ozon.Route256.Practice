@@ -17,9 +17,9 @@ public sealed class MappingTests
     [Fact]
     public void OrderTypeTest()
     {
-        var model = OrderType.SecondType;
+        var model = OrderType.Mobile;
 
-        Assert.Equal(Grpc.Orders.Order.Types.OrderType.SecondType, model.FromDto());
+        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Mobile, model.FromDto());
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public sealed class MappingTests
             2,
             123,
             432,
-            OrderType.FirstType,
+            OrderType.Web,
             OrderState.Cancelled,
             1,
             1,
@@ -58,7 +58,7 @@ public sealed class MappingTests
         Assert.Equal(order.Count, mapped.Count);
         Assert.Equal(order.TotalSum, mapped.TotalSum);
         Assert.Equal(order.TotalWeight, mapped.TotalWeight);
-        Assert.Equal(Grpc.Orders.Order.Types.OrderType.FirstType, mapped.Type);
+        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Web, mapped.Type);
         Assert.Equal(Grpc.Orders.Order.Types.OrderState.Cancelled, mapped.State);
         Assert.Equal(order.CreatedAt, mapped.CreatedAt.ToDateTime());
         Assert.Equal(region.Name, mapped.RegionFrom);
@@ -129,9 +129,9 @@ public sealed class MappingTests
     [Fact]
     public void TestOrderType()
     {
-        var model = Grpc.Orders.Order.Types.OrderType.FirstType;
+        var model = Grpc.Orders.Order.Types.OrderType.Web;
 
-        Assert.Equal(OrderType.FirstType, model.ToDto());
+        Assert.Equal(OrderType.Web, model.ToDto());
     }
 
     [Fact]
@@ -170,7 +170,7 @@ public sealed class MappingTests
     {
         var model = new Grpc.Orders.GetOrdersRequest
         {
-            OrderTypeFilter = Grpc.Orders.Order.Types.OrderType.FirstType,
+            OrderTypeFilter = Grpc.Orders.Order.Types.OrderType.Web,
             Page = new Grpc.Orders.PagingRequest
             {
                 SkipCount = 32,
@@ -245,7 +245,7 @@ public sealed class MappingTests
 
         var mapped = source.ToDto();
         
-        Assert.Equal(OrderType.SecondType, mapped);
+        Assert.Equal(OrderType.Mobile, mapped);
     }
 
     [Fact]
@@ -282,7 +282,7 @@ public sealed class MappingTests
         Assert.Equal(order.Goods.Sum(g => g.Quantity), mapped.Count);
         Assert.Equal(order.Goods.Sum(g => g.Price), mapped.TotalSum);
         Assert.Equal(order.Goods.Sum(g => g.Weight), mapped.TotalWeight);
-        Assert.Equal(OrderType.FirstType, mapped.Type);
+        Assert.Equal(OrderType.Web, mapped.Type);
         Assert.Equal(OrderState.Created, mapped.State);
         Assert.Equal(2, mapped.RegionFromId);
         Assert.Equal(order.Customer.Id, mapped.CustomerId);

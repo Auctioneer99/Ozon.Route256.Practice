@@ -1,10 +1,13 @@
 ﻿using System.Text.Json;
+using System.Transactions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
 using Ozon.Route256.Practice.OrdersService.Repository;
+using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
+using IsolationLevel = Confluent.Kafka.IsolationLevel;
 
 namespace Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders;
 
@@ -101,32 +104,42 @@ public sealed class PreOrderConsumer : BackgroundService
         {
             return false;
         }
-        
         var address = await addressRepository.FindByCoordinates(
             preOrder.Customer.Address.Latitude, 
             preOrder.Customer.Address.Longitude, 
             token);
-
-        if (address == null)
-        {
-            var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id);
-            address = await addressRepository.Add(addressDto, token);
-        }
         
-        var order = preOrder.ToDto(regionFrom.Id, address.Id, consumeResult.Message.Timestamp.UtcDateTime);
+        using (var ts = new TransactionScope(
+                   TransactionScopeOption.Required,
+                   new TransactionOptions
+                   {
+                       IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
+                       Timeout = TimeSpan.FromSeconds(5)
+                   },
+                   TransactionScopeAsyncFlowOption.Enabled
+               ))
+        {
+            if (address == null)
+            {
+                var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id);
+                address = await addressRepository.Add(addressDto, token);
+            }
+        
+            var order = preOrder.ToDto(regionFrom.Id, address.Id, consumeResult.Message.Timestamp.UtcDateTime);
+            await orderRepository.Add(order, token);
+            
+            ts.Complete();
+        }
 
-        await orderRepository.Add(order, token);
-
-        var producer = scope.ServiceProvider.GetRequiredService<NewOrderProducer>();
         var validator = scope.ServiceProvider.GetRequiredService<NewOrderValidator>();
-
         if (validator.ValidateDistance(preOrder.Customer.Address, regionFrom) == false)
         {
             _logger.LogInformation("Пропускаем заказ, растояние больше 5000");
             return false;
         }
         
-        await producer.Produce(order.Id, token);
+        var producer = scope.ServiceProvider.GetRequiredService<NewOrderProducer>();
+        await producer.Produce(preOrder.Id, token);
 
         return true;
     }

@@ -1,4 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.GrpcServices;
+﻿using Ozon.Route256.Practice.OrdersService.Dal;
+using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.Kafka;
 using Ozon.Route256.Practice.OrdersService.Repository;
 
@@ -21,6 +22,9 @@ public sealed class Startup
         services.AddGrpcServices(_configuration);
         services.AddGrpcClients(_configuration);
 
+        services.AddPostgres(_configuration);
+        services.AddMigrations(_configuration);
+        
         services.AddRepositories(_configuration);
         
         services.AddEndpointsApiExplorer();

@@ -29,11 +29,13 @@ services:
       - service-discovery
       - logistics-simulator
       - customer-service
+      - orders-service-db
     environment: 
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
+      - "Postgres:ConnectionString=Server=orders-service-db;Port=5432;Database=orders-service;User ID=postgres;Password=postgres"
       - "Kafka:Consumers:PreOrder:Topic=pre_orders"
       - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
       - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
@@ -60,11 +62,13 @@ services:
       - service-discovery
       - logistics-simulator
       - customer-service
+      - orders-service-db
     environment:
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
+      - "Postgres:ConnectionString=Server=orders-service-db;Port=5432;Database=orders-service;User ID=postgres;Password=postgres"
       - "Kafka:Consumers:PreOrder:Topic=pre_orders"
       - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
       - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
@@ -102,10 +106,12 @@ services:
     container_name: "customer-service"
     depends_on: 
       - service-discovery
+      - customer-service-db
     environment:
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_HTTP_PORT=80"
+      - "ConnectionStrings:CustomerDb=Server=customer-service-db;Port=5432;Database=customer-service;User ID=postgres;Password=postgres"
     ports:
       - "8380:80"
       - "8381:81"
@@ -221,6 +227,7 @@ services:
       - "KAFKA_DEFAULT_REPLICATION_FACTOR=2"
       - "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=2"
       - "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=2"
+      - "KAFKA_NUM_PARTITIONS=2"
     ports:
       - "29091:29091"
     volumes:
@@ -242,6 +249,7 @@ services:
       - "KAFKA_DEFAULT_REPLICATION_FACTOR=2"
       - "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=2"
       - "KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=2"
+      - "KAFKA_NUM_PARTITIONS=2"
     ports:
       - "29092:29092"
     volumes:

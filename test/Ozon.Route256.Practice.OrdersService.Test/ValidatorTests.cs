@@ -91,7 +91,7 @@ public sealed class ValidatorTests
     {
         Assert.True(_getOrdersRequestValidator.Validate(new GetOrdersRequest
         {
-            OrderTypeFilter = Order.Types.OrderType.FirstType,
+            OrderTypeFilter = Order.Types.OrderType.Web,
             Page = new() { TakeCount = 1 },
             Sort = SortType.None,
             SortField = Order.Types.SortField.NoneField,
@@ -99,7 +99,7 @@ public sealed class ValidatorTests
         }));
         Assert.True(_getOrdersRequestValidator.Validate(new GetOrdersRequest
         {
-            OrderTypeFilter = Order.Types.OrderType.FirstType,
+            OrderTypeFilter = Order.Types.OrderType.Web,
             Page = new() { TakeCount = 1 },
             Sort = SortType.None,
             SortField = Order.Types.SortField.NoneField,
@@ -115,7 +115,7 @@ public sealed class ValidatorTests
         }));
         Assert.False(_getOrdersRequestValidator.Validate(new GetOrdersRequest
         {
-            OrderTypeFilter = Order.Types.OrderType.FirstType,
+            OrderTypeFilter = Order.Types.OrderType.Web,
             Page = null,
             Sort = SortType.None,
             SortField = Order.Types.SortField.NoneField,
@@ -123,7 +123,7 @@ public sealed class ValidatorTests
         }));
         Assert.False(_getOrdersRequestValidator.Validate(new GetOrdersRequest
         {
-            OrderTypeFilter = Order.Types.OrderType.FirstType,
+            OrderTypeFilter = Order.Types.OrderType.Web,
             Page = new(),
             Sort = SortType.None,
             SortField = Order.Types.SortField.NoneField,
