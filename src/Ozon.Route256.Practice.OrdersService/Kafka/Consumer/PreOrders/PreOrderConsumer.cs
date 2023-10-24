@@ -121,11 +121,11 @@ public sealed class PreOrderConsumer : BackgroundService
         {
             if (address == null)
             {
-                var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id);
+                var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id, 0);
                 address = await addressRepository.Add(addressDto, token);
             }
         
-            var order = preOrder.ToDto(regionFrom.Id, address.Id, consumeResult.Message.Timestamp.UtcDateTime);
+            var order = preOrder.ToDto(regionFrom.Id, consumeResult.Message.Timestamp.UtcDateTime);
             await orderRepository.Add(order, token);
             
             ts.Complete();

@@ -9,5 +9,4 @@ public sealed record OrderDto(
     OrderState State,
     long RegionFromId,
     long CustomerId,
-    long AddressId,
     DateTime CreatedAt);

@@ -1,6 +1,7 @@
 ﻿using Npgsql;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
 
-namespace Ozon.Route256.Practice.OrdersService.Dal.Common;
+namespace Ozon.Route256.Practice.OrdersService.Dal.Common.Impl;
 
 public sealed class PostgresConnectionFactory : IPostgresConnectionFactory
 {

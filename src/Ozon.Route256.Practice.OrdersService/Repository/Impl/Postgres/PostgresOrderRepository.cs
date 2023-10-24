@@ -1,23 +1,24 @@
 ﻿using System.Data;
-using Npgsql;
-using Ozon.Route256.Practice.OrdersService.Dal.Common;
+using Dapper;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Shard;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 
-public class PostgresOrderRepository : IOrderRepository
+public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
 {
-    private readonly IPostgresConnectionFactory _factory;
-
-    public PostgresOrderRepository(IPostgresConnectionFactory factory)
+    public PostgresOrderRepository(
+        IShardConnectionFactory connectionFactory,
+        IShardingRule<long> longShardingRule,
+        IShardingRule<string> stringShardingRule): base(connectionFactory, longShardingRule, stringShardingRule)
     {
-        _factory = factory;
     }
 
-    private const string Fields = "id, count, total_sum, total_weight, type, state, region_from_id, customer_id, address_id, created_at";
-    private const string FieldsForInsert = "count, total_sum, total_weight, type, state, region_from_id, customer_id, address_id, created_at";
-    private const string Table = "orders";
+    private const string Fields = $"id as {nameof(OrderDto.Id)}, count as {nameof(OrderDto.Count)}, total_sum as {nameof(OrderDto.TotalSum)}, total_weight as {nameof(OrderDto.TotalWeight)}, type as {nameof(OrderDto.Type)}, state as {nameof(OrderDto.State)}, region_from_id as {nameof(OrderDto.RegionFromId)}, customer_id as {nameof(OrderDto.CustomerId)}, created_at as {nameof(OrderDto.CreatedAt)}";
+    private const string FieldsForInsert = "id, count, total_sum, total_weight, type, state, region_from_id, customer_id, created_at";
+    private const string Table = $"{Shards.BucketPlaceholder}.orders";
     
     public async Task<OrderDto?> FindById(long id, CancellationToken token)
     {
@@ -26,16 +27,17 @@ public class PostgresOrderRepository : IOrderRepository
             from {Table}
             where id = :id;";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("id", id);
+        await using var connection = GetConnectionByShardKey(id);
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, token);
-
-        var result = await Read(reader, token);
-        return result.FirstOrDefault();
+        var param = new DynamicParameters();
+        param.Add("id", id);
+        
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return await connection.QueryFirstAsync<OrderDto?>(cmd);
     }
 
     public async Task<OrderDto> GetById(long id, CancellationToken token)
@@ -52,7 +54,7 @@ public class PostgresOrderRepository : IOrderRepository
 
     public async Task<OrderDto[]> GetByCustomerId(OrderRequestByCustomerDto orderRequest, CancellationToken token)
     {
-        string sql = @$"
+        /*string sql = @$"
             select {Fields}
             from {Table}
             where customer_id = :id and created_at >= :from";
@@ -76,12 +78,14 @@ public class PostgresOrderRepository : IOrderRepository
         await using var reader = await command.ExecuteReaderAsync(token);
 
         var result = await Read(reader, token);
-        return result;
+        return result;*/
+        throw new NotImplementedException();
     }
 
     public async Task<OrderDto[]> GetAll(CancellationToken token)
     {
-        const string sql = @$"
+        throw new NotImplementedException();
+        /*const string sql = @$"
             select {Fields}
             from {Table};";
 
@@ -92,12 +96,13 @@ public class PostgresOrderRepository : IOrderRepository
         await using var reader = await command.ExecuteReaderAsync(token);
 
         var result = await Read(reader, token);
-        return result;
+        return result;*/
     }
 
     public async Task<OrderDto[]> GetAll(OrderRequestDto orderRequest, CancellationToken token)
     {
-        string orderField = null;
+        throw new NotImplementedException();
+        /*string orderField = null;
         
         switch (orderRequest.OrderField)
         {
@@ -170,26 +175,39 @@ public class PostgresOrderRepository : IOrderRepository
         await using var reader = await command.ExecuteReaderAsync(token);
 
         var result = await Read(reader, token);
-        return result;
+        return result;*/
     }
 
     public async Task Add(OrderDto order, CancellationToken token)
     {
         const string sql = @$"
             insert into {Table}({FieldsForInsert})
-            select {FieldsForInsert} from unnest(:models);";
+            values (:id, :count, :total_sum, :total_weight, :type, :state, :region_from_id, :customer_id, :created_at);";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
+        await using var connection = GetConnectionByShardKey(order.Id);
         
-        command.Parameters.Add("models", new[] { order });
+        var param = new DynamicParameters();
+        param.Add("id", order.Id);
+        param.Add("count", order.Count);
+        param.Add("total_sum", order.TotalSum);
+        param.Add("total_weight", order.TotalWeight);
+        param.Add("type", order.Type);
+        param.Add("state", order.State);
+        param.Add("region_from_id", order.RegionFromId);
+        param.Add("customer_id", order.CustomerId);
+        param.Add("created_at", order.CreatedAt);
         
-        await connection.OpenAsync(token);
-        await command.ExecuteNonQueryAsync(token);
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        await connection.ExecuteAsync(cmd);
     }
 
     public async Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token)
     {
+        throw new NotImplementedException();/*
         const string sql = @$"
             update {Table} set state = :state
             where id = :id;";
@@ -201,29 +219,6 @@ public class PostgresOrderRepository : IOrderRepository
         command.Parameters.Add("state", state);
         
         await connection.OpenAsync(token);
-        await command.ExecuteNonQueryAsync(token);
-    }
-    
-    private async Task<OrderDto[]> Read(NpgsqlDataReader reader, CancellationToken token)
-    {
-        var result = new List<OrderDto>();
-        
-        while (await reader.ReadAsync(token))
-        {
-            result.Add(
-                new OrderDto(
-                    Id: reader.GetInt64(0),
-                    Count: reader.GetInt32(1),
-                    TotalSum: reader.GetDouble(2),
-                    TotalWeight: reader.GetDouble(3),
-                    Type: reader.GetFieldValue<OrderType>(4),
-                    State: reader.GetFieldValue<OrderState>(5),
-                    RegionFromId: reader.GetInt64(6),
-                    CustomerId: reader.GetInt64(7),
-                    AddressId: reader.GetInt64(8),
-                    CreatedAt: reader.GetDateTime(9)));
-        }
-
-        return result.ToArray();
+        await command.ExecuteNonQueryAsync(token);*/
     }
 }

@@ -23,7 +23,7 @@ public sealed class Startup
         services.AddGrpcClients(_configuration);
 
         services.AddPostgres(_configuration);
-        services.AddMigrations(_configuration);
+        services.AddMigrations();
         
         services.AddRepositories(_configuration);
         

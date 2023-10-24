@@ -29,13 +29,11 @@ services:
       - service-discovery
       - logistics-simulator
       - customer-service
-      - orders-service-db
     environment: 
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
-      - "Postgres:ConnectionString=Server=orders-service-db;Port=5432;Database=orders-service;User ID=postgres;Password=postgres"
       - "Kafka:Consumers:PreOrder:Topic=pre_orders"
       - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
       - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
@@ -62,13 +60,11 @@ services:
       - service-discovery
       - logistics-simulator
       - customer-service
-      - orders-service-db
     environment:
       - "ROUTE256_GRPC_PORT=81"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
-      - "Postgres:ConnectionString=Server=orders-service-db;Port=5432;Database=orders-service;User ID=postgres;Password=postgres"
       - "Kafka:Consumers:PreOrder:Topic=pre_orders"
       - "Kafka:Consumers:PreOrder:Config:GroupId=order_service_pre_orders"
       - "Kafka:Consumers:PreOrder:Config:BootstrapServers=broker-1:9091"
@@ -185,8 +181,11 @@ services:
   service-discovery:
     image: "gitlab-registry.ozon.dev/cs/classroom-8/students/practice/service-discovery"
     container_name: "service-discovery"
+    depends_on:
+      - orders-service-db-shard1
+      - orders-service-db-shard2
     environment:
-      - "ROUTE256_DB_STATE=cluster:0-9:db1:1543;cluster:10-19:db2:1543;cluster1:0:db3:1543"
+      - "ROUTE256_DB_STATE=orders-cluster:0-3:localhost:5533;orders-cluster:4-7:localhost:5534"
       - "ROUTE256_UPDATE_TIMEOUT=10"
     ports:
       - "8880:80"
@@ -278,10 +277,10 @@ services:
     volumes:
       - "../pgdata/Customers:/var/lib/postgresql/data"
   
-  orders-service-db:
+  orders-service-db-shard1:
     image: "postgres:latest"
     restart: always
-    container_name: "orders-service-db"
+    container_name: "orders-service-db-shard1"
     environment:
       - "POSTGRES_DB=orders-service"
       - "POSTGRES_USER=postgres"
@@ -289,4 +288,17 @@ services:
     ports:
       - "5533:5432"
     volumes:
-      - "../pgdata/Orders:/var/lib/postgresql/data"
+      - "../pgdata/Orders/Shard1:/var/lib/postgresql/data"
+    
+  orders-service-db-shard2:
+    image: "postgres:latest"
+    restart: always
+    container_name: "orders-service-db-shard2"
+    environment:
+      - "POSTGRES_DB=orders-service"
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=postgres"
+    ports:
+      - "5534:5432"
+    volumes:
+      - "../pgdata/Orders/Shard2:/var/lib/postgresql/data"

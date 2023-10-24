@@ -1,5 +1,5 @@
 ﻿using FluentMigrator;
-using Ozon.Route256.Practice.OrdersService.Dal.Common;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Impl;
 
 namespace Ozon.Route256.Practice.OrdersService.Dal.Migrations;
 

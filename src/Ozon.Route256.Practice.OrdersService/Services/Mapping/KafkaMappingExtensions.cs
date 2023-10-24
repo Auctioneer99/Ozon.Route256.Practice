@@ -14,7 +14,7 @@ public static class KafkaMappingExtensions
         return (OrderType)source;
     }
     
-    public static OrderDto ToDto(this Kafka.Consumer.PreOrders.Models.PreOrder order, long regionFromId, long addressId, DateTime createdAt)
+    public static OrderDto ToDto(this Kafka.Consumer.PreOrders.Models.PreOrder order, long regionFromId, DateTime createdAt)
     {
         return new OrderDto(
             order.Id,
@@ -25,15 +25,15 @@ public static class KafkaMappingExtensions
             OrderState.Created,
             regionFromId,
             order.Customer.Id,
-            addressId,
             createdAt);
     }
 
-    public static AddressDto ToDto(this Kafka.Consumer.PreOrders.Models.PreAddress address, long regionId)
+    public static AddressDto ToDto(this Kafka.Consumer.PreOrders.Models.PreAddress address, long regionId, long customerId)
     {
         return new AddressDto(
             0,
             regionId,
+            customerId,
             address.City,
             address.Street,
             address.Building,

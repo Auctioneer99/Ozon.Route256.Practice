@@ -23,7 +23,6 @@ public static class GrpcServiceExtensions
                 x.Credentials = ChannelCredentials.Insecure;
             });
         
-        services.AddSingleton<IDbStore, DbStore>();
         services.AddHostedService<SdConsumerHostedService>();
         services.AddGrpcClient<Grpc.ServiceDiscovery.SdService.SdServiceClient>(options =>
         {
