@@ -36,7 +36,7 @@ public class PostgresAddressRepository : BaseShardRepository, IAddressRepository
             param,
             cancellationToken: token);
         
-        return await connection.QueryFirstAsync<AddressDto?>(cmd);
+        return await connection.QueryFirstOrDefaultAsync<AddressDto?>(cmd);
     }
 
     public async Task<AddressDto?> FindByCoordinates(double latitude, double longitude, CancellationToken token)
@@ -58,7 +58,7 @@ public class PostgresAddressRepository : BaseShardRepository, IAddressRepository
             param,
             cancellationToken: token);
         
-        return await connection.QueryFirstAsync<AddressDto?>(cmd);
+        return await connection.QueryFirstOrDefaultAsync<AddressDto?>(cmd);
     }
 
     public async Task<AddressDto[]> FindManyById(IEnumerable<long> ids, CancellationToken token)

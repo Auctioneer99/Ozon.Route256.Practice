@@ -37,7 +37,7 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
             param,
             cancellationToken: token);
         
-        return await connection.QueryFirstAsync<OrderDto?>(cmd);
+        return await connection.QueryFirstOrDefaultAsync<OrderDto?>(cmd);
     }
 
     public async Task<OrderDto> GetById(long id, CancellationToken token)

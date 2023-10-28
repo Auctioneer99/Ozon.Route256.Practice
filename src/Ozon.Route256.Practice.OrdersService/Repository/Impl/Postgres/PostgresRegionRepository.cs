@@ -41,7 +41,7 @@ public class PostgresRegionRepository : BaseShardRepository, IRegionRepository
             param,
             cancellationToken: token);
         
-        return await connection.QueryFirstAsync<RegionDto?>(cmd);
+        return await connection.QueryFirstOrDefaultAsync<RegionDto?>(cmd);
     }
 
     public async Task<RegionDto?> FindByName(string name, CancellationToken token)
