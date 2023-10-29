@@ -54,49 +54,45 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
 
     public async Task<OrderDto[]> GetByCustomerId(OrderRequestByCustomerDto orderRequest, CancellationToken token)
     {
-        /*string sql = @$"
+        const string sql = @$"
             select {Fields}
             from {Table}
-            where customer_id = :id and created_at >= :from";
+            where customer_id = :id and created_at >= :from;";
 
-        if (orderRequest.TakeCount > 0)
-        {
-            sql += " limit :limit";
-        }
+        await using var connection = GetConnectionByShardKey(orderRequest.CustomerId);
         
-        sql += " offset :offset;";
-
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("id", orderRequest.CustomerId);
-        command.Parameters.Add("from", orderRequest.From);
-        command.Parameters.Add("limit", orderRequest.TakeCount);
-        command.Parameters.Add("offset", orderRequest.SkipCount);
+        var param = new DynamicParameters();
+        param.Add("id", orderRequest.CustomerId);
+        param.Add("from", orderRequest.From);
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(token);
-
-        var result = await Read(reader, token);
-        return result;*/
-        throw new NotImplementedException();
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return (await connection.QueryAsync<OrderDto>(cmd)).ToArray();
     }
 
     public async Task<OrderDto[]> GetAll(CancellationToken token)
     {
-        throw new NotImplementedException();
-        /*const string sql = @$"
-            select {Fields}
-            from {Table};";
-
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
+        var result = new List<OrderDto>();
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(token);
+        foreach (var bucket in _connectionFactory.GetAllBuckets())
+        {
+            const string sql = @$"
+                select {Fields}
+                from {Table};";
+            
+            await using var connection = GetConnectionByBucket(bucket);
+        
+            var cmd = new CommandDefinition(
+                sql,
+                cancellationToken: token);
+        
+            result.AddRange(await connection.QueryAsync<OrderDto>(cmd));
+        }
 
-        var result = await Read(reader, token);
-        return result;*/
+        return result.ToArray();
     }
 
     public async Task<OrderDto[]> GetAll(OrderRequestDto orderRequest, CancellationToken token)

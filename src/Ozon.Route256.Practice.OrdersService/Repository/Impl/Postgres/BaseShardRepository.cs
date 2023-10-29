@@ -5,7 +5,7 @@ namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 
 public abstract class BaseShardRepository
 {
-    private readonly IShardConnectionFactory _connectionFactory;
+    protected readonly IShardConnectionFactory _connectionFactory;
     private readonly IShardingRule<long> _longShardingRule;
     private readonly IShardingRule<string> _stringShardingRule;
 
