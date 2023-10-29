@@ -26,7 +26,7 @@ public sealed class ShardConnectionFactory : IShardConnectionFactory
         }
     }
     
-    public DbConnection GetConnectionByBucket(int bucket)
+    public ShardNpgsqlConnection GetConnectionByBucket(int bucket)
     {
         var endpoint = _shardsStore.GetEndpointByBucket(bucket);
         var connectionString = GetConnectionString(endpoint);

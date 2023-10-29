@@ -19,6 +19,10 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
     private const string Fields = $"id as {nameof(OrderDto.Id)}, count as {nameof(OrderDto.Count)}, total_sum as {nameof(OrderDto.TotalSum)}, total_weight as {nameof(OrderDto.TotalWeight)}, type as {nameof(OrderDto.Type)}, state as {nameof(OrderDto.State)}, region_from_id as {nameof(OrderDto.RegionFromId)}, customer_id as {nameof(OrderDto.CustomerId)}, created_at as {nameof(OrderDto.CreatedAt)}";
     private const string FieldsForInsert = "id, count, total_sum, total_weight, type, state, region_from_id, customer_id, created_at";
     private const string Table = $"{Shards.BucketPlaceholder}.orders";
+
+    private const string IndexFields = $"order_id as {nameof(OrderIndexDto.OrderId)}, shard as {nameof(OrderIndexDto.Shard)}";
+    private const string IndexFieldsForInsert = "order_id, shard";
+    private const string IndexTable = $"{Shards.BucketPlaceholder}.orders_id_global_index";
     
     public async Task<OrderDto?> FindById(long id, CancellationToken token)
     {
@@ -57,20 +61,25 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
         const string sql = @$"
             select {Fields}
             from {Table}
-            where customer_id = :id and created_at >= :from;";
+            where customer_id = :id and created_at >= :from
+            limit :limit offset :skip;";
 
         await using var connection = GetConnectionByShardKey(orderRequest.CustomerId);
         
         var param = new DynamicParameters();
         param.Add("id", orderRequest.CustomerId);
         param.Add("from", orderRequest.From);
+        param.Add("limit", orderRequest.TakeCount);
+        param.Add("skip", orderRequest.SkipCount);
         
         var cmd = new CommandDefinition(
             sql,
             param,
             cancellationToken: token);
+
+        var result = await connection.QueryAsync<OrderDto>(cmd);
         
-        return (await connection.QueryAsync<OrderDto>(cmd)).ToArray();
+        return result.ToArray();
     }
 
     public async Task<OrderDto[]> GetAll(CancellationToken token)
@@ -176,29 +185,52 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
 
     public async Task Add(OrderDto order, CancellationToken token)
     {
-        const string sql = @$"
+        var orderShard = 0;
+        
+        await using (var connection = GetConnectionByShardKey(order.CustomerId))
+        {
+            orderShard = connection.Bucket;
+            
+            const string sql = @$"
             insert into {Table}({FieldsForInsert})
             values (:id, :count, :total_sum, :total_weight, :type, :state, :region_from_id, :customer_id, :created_at);";
+            
+            var param = new DynamicParameters();
+            param.Add("id", order.Id);
+            param.Add("count", order.Count);
+            param.Add("total_sum", order.TotalSum);
+            param.Add("total_weight", order.TotalWeight);
+            param.Add("type", order.Type);
+            param.Add("state", order.State);
+            param.Add("region_from_id", order.RegionFromId);
+            param.Add("customer_id", order.CustomerId);
+            param.Add("created_at", order.CreatedAt);
+        
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
+        
+            await connection.ExecuteAsync(cmd);
+        }
 
-        await using var connection = GetConnectionByShardKey(order.CustomerId);
+        await using (var connection = GetConnectionByShardKey(order.Id))
+        {
+            const string sql = @$"
+            insert into {IndexTable}({IndexFieldsForInsert})
+            values (:order_id, :shard);";
+            
+            var param = new DynamicParameters();
+            param.Add("order_id", order.Id);
+            param.Add("shard", orderShard);
         
-        var param = new DynamicParameters();
-        param.Add("id", order.Id);
-        param.Add("count", order.Count);
-        param.Add("total_sum", order.TotalSum);
-        param.Add("total_weight", order.TotalWeight);
-        param.Add("type", order.Type);
-        param.Add("state", order.State);
-        param.Add("region_from_id", order.RegionFromId);
-        param.Add("customer_id", order.CustomerId);
-        param.Add("created_at", order.CreatedAt);
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
         
-        var cmd = new CommandDefinition(
-            sql,
-            param,
-            cancellationToken: token);
-        
-        await connection.ExecuteAsync(cmd);
+            await connection.ExecuteAsync(cmd);
+        }
     }
 
     public async Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token)

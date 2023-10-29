@@ -19,10 +19,10 @@ public static class KafkaMappingExtensions
         return new OrderDto(
             order.Id,
             order.Goods.Sum(g => g.Quantity),
-            order.Goods.Sum(g => g.Price),
-            order.Goods.Sum(g => g.Weight),
-            order.Source.ToDto(),
-            OrderState.Created,
+            order.Goods.Sum(g => (decimal)g.Price),
+            order.Goods.Sum(g => (decimal)g.Weight),
+            (int)order.Source,
+            (int)OrderState.Created,
             regionFromId,
             order.Customer.Id,
             createdAt);
@@ -39,7 +39,7 @@ public static class KafkaMappingExtensions
             address.Street,
             address.Building,
             address.Apartment,
-            address.Latitude,
-            address.Longitude);
+            (decimal)address.Latitude,
+            (decimal)address.Longitude);
     }
 }

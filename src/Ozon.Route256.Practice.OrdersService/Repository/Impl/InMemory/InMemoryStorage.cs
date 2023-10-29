@@ -26,8 +26,8 @@ public sealed class InMemoryStorage
                 Faker.RandomNumber.Next(1, 10),
                 Faker.RandomNumber.Next(100, 2000),
                 Faker.RandomNumber.Next(1, 20),
-                Faker.Enum.Random<OrderType>(),
-                Faker.Enum.Random<OrderState>(),
+                (int)Faker.Enum.Random<OrderType>(),
+                (int)Faker.Enum.Random<OrderState>(),
                 Faker.RandomNumber.Next(1, 3),
                 Faker.RandomNumber.Next(1, 100),
                 Faker.Identification.DateOfBirth()
@@ -49,8 +49,8 @@ public sealed class InMemoryStorage
                 Faker.Address.StreetName(),
                 Faker.RandomNumber.Next().ToString(),
                 Faker.RandomNumber.Next().ToString(),
-                (Faker.RandomNumber.Next() / (double)int.MaxValue) * 180,
-                (Faker.RandomNumber.Next() / (double)int.MaxValue) * 90
+                (decimal)(Faker.RandomNumber.Next() / (double)int.MaxValue) * 180,
+                (decimal)(Faker.RandomNumber.Next() / (double)int.MaxValue) * 90
             ));
 
         foreach (var a in addresses)

@@ -74,7 +74,7 @@ public class PostgresRegionRepository : BaseShardRepository, IRegionRepository
         await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
         var param = new DynamicParameters();
-        param.Add("ids", ids);
+        param.Add("ids", ids.ToList());
         
         var cmd = new CommandDefinition(
             sql,
@@ -94,7 +94,7 @@ public class PostgresRegionRepository : BaseShardRepository, IRegionRepository
         await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
         var param = new DynamicParameters();
-        param.Add("names", names);
+        param.Add("names", names.ToList());
         
         var cmd = new CommandDefinition(
             sql,

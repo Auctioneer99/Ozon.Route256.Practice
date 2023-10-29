@@ -138,9 +138,9 @@ public sealed class OrdersGrpcServiceTests
     {
         var fake = A.Fake<IAddressRepository>();
 
-        A.CallTo(() => fake.GetManyById(A<IEnumerable<long>>._, A<CancellationToken>._))
+        A.CallTo(() => fake.GetManyByOrderId(A<IEnumerable<long>>._, A<CancellationToken>._))
             .ReturnsLazily((IEnumerable<long> ids, CancellationToken token) => ids.Select(CreateAddressDto).ToArray());
-        A.CallTo(() => fake.GetManyById(A<IEnumerable<long>>._, A<CancellationToken>._))
+        A.CallTo(() => fake.GetManyByOrderId(A<IEnumerable<long>>._, A<CancellationToken>._))
             .WhenArgumentsMatch((IEnumerable<long> ids, CancellationToken token) => ids.Any(id => id <= 0 || id > 100))
             .ThrowsAsync((IEnumerable<long> ids, CancellationToken token) =>
                 throw new NotFoundException(string.Join(", ", ids)));

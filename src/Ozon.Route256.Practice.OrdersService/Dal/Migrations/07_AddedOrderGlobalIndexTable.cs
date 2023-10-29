@@ -3,15 +3,15 @@ using Ozon.Route256.Practice.OrdersService.Dal.Common.Impl;
 
 namespace Ozon.Route256.Practice.OrdersService.Dal.Migrations;
 
-/*
-[Migration(4, "AddedGlobalIndexTable")]
-public class AddedGlobalIndexTable : SqlMigration
+
+[Migration(7, "AddedOrderGlobalIndexTable")]
+public class AddedOrderGlobalIndexTable : SqlMigration
 {
     protected override string GetUpSql(IServiceProvider provider) => @"
 
         create table orders_id_global_index (
             order_id bigint primary key,
-            cluster_index int not null;
+            shard int not null
         );
 
 ";
@@ -21,4 +21,4 @@ public class AddedGlobalIndexTable : SqlMigration
         drop table orders_id_global_index;
 
 ";
-}*/
+}

@@ -1,13 +1,13 @@
-﻿using System.Data.Common;
-using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
+﻿using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Shard;
 
 namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 
 public abstract class BaseShardRepository
 {
     protected readonly IShardConnectionFactory _connectionFactory;
-    private readonly IShardingRule<long> _longShardingRule;
-    private readonly IShardingRule<string> _stringShardingRule;
+    protected readonly IShardingRule<long> _longShardingRule;
+    protected readonly IShardingRule<string> _stringShardingRule;
 
     protected BaseShardRepository(
         IShardConnectionFactory connectionFactory,
@@ -19,7 +19,7 @@ public abstract class BaseShardRepository
         _stringShardingRule = stringShardingRule;
     }
 
-    protected DbConnection GetConnectionByShardKey(
+    protected ShardNpgsqlConnection GetConnectionByShardKey(
         long shardKey)
     {
         var bucketId = _longShardingRule.GetBucket(shardKey);
@@ -27,14 +27,14 @@ public abstract class BaseShardRepository
         return connection;
     }
 
-    protected DbConnection GetConnectionBySearchKey(
+    protected ShardNpgsqlConnection GetConnectionBySearchKey(
         string searchKey)
     {
         var bucketId = _stringShardingRule.GetBucket(searchKey);
         return GetConnectionByBucket(bucketId);
     }
 
-    protected DbConnection GetConnectionByBucket(
+    protected ShardNpgsqlConnection GetConnectionByBucket(
         int bucketId)
     {
         var connection = _connectionFactory.GetConnectionByBucket(bucketId);

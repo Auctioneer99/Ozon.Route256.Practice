@@ -10,6 +10,6 @@ public sealed record AddressDto
     string Street,
     string Building,
     string Apartment,
-    double Latitude,
-    double Longitude
+    decimal Latitude,
+    decimal Longitude
 );

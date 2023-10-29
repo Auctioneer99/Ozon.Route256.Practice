@@ -8,9 +8,9 @@ public interface IAddressRepository
 
     public Task<AddressDto?> FindByCoordinates(double latitude, double longitude, CancellationToken token);
     
-    public Task<AddressDto[]> FindManyById(IEnumerable<long> ids, CancellationToken token);
+    public Task<AddressDto[]> FindManyByOrderId(IEnumerable<long> ids, CancellationToken token);
     
-    public Task<AddressDto[]> GetManyById(IEnumerable<long> ids, CancellationToken token);
+    public Task<AddressDto[]> GetManyByOrderId(IEnumerable<long> ids, CancellationToken token);
 
     public Task<AddressDto[]> GetAll(CancellationToken token);
 

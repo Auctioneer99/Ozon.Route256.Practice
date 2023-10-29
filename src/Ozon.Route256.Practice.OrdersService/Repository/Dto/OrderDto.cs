@@ -3,10 +3,10 @@
 public sealed record OrderDto(
     long Id,
     int Count,
-    double TotalSum,
-    double TotalWeight,
-    OrderType Type,
-    OrderState State,
+    decimal TotalSum,
+    decimal TotalWeight,
+    int Type,
+    int State,
     long RegionFromId,
     long CustomerId,
     DateTime CreatedAt);
