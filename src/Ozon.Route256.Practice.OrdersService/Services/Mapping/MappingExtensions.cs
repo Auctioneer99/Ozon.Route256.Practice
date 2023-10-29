@@ -90,7 +90,8 @@ public static class MappingExtensions
             request.Page.TakeCount,
             request.Page.SkipCount,
             request.OrderTypeFilter.ToDto(),
-            regions
+            regions,
+            new DateTime()
         );
     }
 

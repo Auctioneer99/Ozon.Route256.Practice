@@ -85,7 +85,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
 
         var addresses =
-            await _addressRepository.GetManyByOrderId(orders.Select(o => 0l), context.CancellationToken);
+            await _addressRepository.GetManyByOrderId(orders.Select(o => o.Id), context.CancellationToken);
         var regionAddresses =
             await _regionRepository.GetManyById(addresses.Select(a => a.RegionId).Distinct(),
                 context.CancellationToken);
@@ -118,7 +118,8 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
             0,
             0,
             OrderType.Undefined,
-            regions.Select(r => r.Id)
+            regions.Select(r => r.Id),
+            request.FromDate.ToDateTime()
         );
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
 

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Linq.Expressions;
 using Dapper;
 using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
 using Ozon.Route256.Practice.OrdersService.Dal.Common.Shard;
@@ -26,22 +27,47 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
     
     public async Task<OrderDto?> FindById(long id, CancellationToken token)
     {
-        const string sql = @$"
+        var bucket = 0;
+        await using (var connection = GetConnectionByShardKey(id))
+        {
+            const string sql = @$"
+                select {IndexFields}
+                from {IndexTable}
+                where order_id = :id;";
+            var param = new DynamicParameters();
+            param.Add("id", id);
+        
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
+
+            var index = await connection.QueryFirstOrDefaultAsync<OrderIndexDto?>(cmd);
+            if (index == null)
+            {
+                return null;
+            }
+            bucket = index.Shard;
+        }
+        
+        await using(var connection = GetConnectionByBucket(bucket))
+        {
+            const string sql = @$"
             select {Fields}
             from {Table}
             where id = :id;";
 
-        await using var connection = GetConnectionByShardKey(id);
         
-        var param = new DynamicParameters();
-        param.Add("id", id);
+            var param = new DynamicParameters();
+            param.Add("id", id);
         
-        var cmd = new CommandDefinition(
-            sql,
-            param,
-            cancellationToken: token);
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
         
-        return await connection.QueryFirstOrDefaultAsync<OrderDto?>(cmd);
+            return await connection.QueryFirstOrDefaultAsync<OrderDto?>(cmd);
+        }
     }
 
     public async Task<OrderDto> GetById(long id, CancellationToken token)
@@ -106,53 +132,93 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
 
     public async Task<OrderDto[]> GetAll(OrderRequestDto orderRequest, CancellationToken token)
     {
-        throw new NotImplementedException();
-        /*string orderField = null;
+        var result = new List<OrderDto>();
+
+        foreach (var bucket in _connectionFactory.GetAllBuckets())
+        {
+            string sql = @$"
+                select {Fields}
+                from {Table}
+                where {(orderRequest.OrderType != OrderType.Undefined ? "type = :type and " : "")}
+                    region_from_id = any(:regions) and created_at > :from";
+
+            await using var connection = GetConnectionByBucket(bucket);
+
+            var param = new DynamicParameters();
+            param.Add("type", orderRequest.OrderType);
+            param.Add("regions", orderRequest.Regions.ToList());
+            param.Add("from", orderRequest.From);
+            
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
+
+            result.AddRange(await connection.QueryAsync<OrderDto>(cmd));
+        }
+
+        var ordered = result.AsEnumerable();
         
         switch (orderRequest.OrderField)
         {
             case OrderField.NoneField:
                 break;
             case OrderField.Id:
-                orderField = "id";
+                ordered = Order(ordered, o => o.Id, orderRequest.SortingType);
                 break;
             case OrderField.Count:
-                orderField = "count";
+                ordered = Order(ordered, o => o.Count, orderRequest.SortingType);
                 break;
             case OrderField.TotalSum:
-                orderField = "total_sum";
+                ordered = Order(ordered, o => o.TotalSum, orderRequest.SortingType);
                 break;
             case OrderField.TotalWeight:
-                orderField = "total_weight";
+                ordered = Order(ordered, o => o.TotalWeight, orderRequest.SortingType);
                 break;
             case OrderField.OrderType:
-                orderField = "type";
+                ordered = Order(ordered, o => o.Type, orderRequest.SortingType);
                 break;
             case OrderField.CreatedAt:
-                orderField = "created_at";
+                ordered = Order(ordered, o => o.CreatedAt, orderRequest.SortingType);
                 break;
             case OrderField.OrderState:
-                orderField = "state";
+                ordered = Order(ordered, o => o.State, orderRequest.SortingType);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        string orderDir = null;
-        switch (orderRequest.SortingType)
+        ordered = ordered.Skip((int)orderRequest.SkipCount);
+
+        if (orderRequest.TakeCount > 0)
         {
-            case SortingType.None:
-                orderDir = "asc";
-                break;
-            case SortingType.Ascending:
-                orderDir = "asc";
-                break;
-            case SortingType.Descending:
-                orderDir = "desc";
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
+            ordered = ordered.Take((int)orderRequest.TakeCount);
         }
+
+        return ordered.ToArray();
+
+        IEnumerable<T> Order<T>(IEnumerable<T> enumerable, Func<T, object> field, SortingType order)
+        {
+            switch (order)
+            {
+                case SortingType.None:
+                    return enumerable.OrderBy(field);
+                case SortingType.Ascending:
+                    return enumerable.OrderBy(field);
+                case SortingType.Descending:
+                    return enumerable.OrderByDescending(field);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        throw new NotImplementedException();
+        /*string orderField = null;
+        
+        
+
+        string orderDir = null;
+        
 
         string sql = @$"
             select {Fields}
@@ -235,18 +301,45 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
 
     public async Task UpdateOrderStatus(long orderId, OrderState state, CancellationToken token)
     {
-        throw new NotImplementedException();/*
-        const string sql = @$"
-            update {Table} set state = :state
-            where id = :id;";
+        var bucket = 0;
+        await using (var connection = GetConnectionByShardKey(orderId))
+        {
+            const string sql = @$"
+                select {IndexFields}
+                from {IndexTable}
+                where order_id = :id;";
+            var param = new DynamicParameters();
+            param.Add("id", orderId);
+        
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
+            var index = await connection.QueryFirstOrDefaultAsync<OrderIndexDto?>(cmd);
+            if (index == null)
+            {
+                throw new NotFoundException($"Не найден с заказ Id {orderId}");
+            }
+            bucket = index.Shard;
+        }
         
-        command.Parameters.Add("id", orderId);
-        command.Parameters.Add("state", state);
+        await using(var connection = GetConnectionByBucket(bucket))
+        {
+            const string sql = @$"
+                update {Table} set state = :state
+                where id = :id;";
+
+            var param = new DynamicParameters();
+            param.Add("id", orderId);
+            param.Add("state", state);
         
-        await connection.OpenAsync(token);
-        await command.ExecuteNonQueryAsync(token);*/
+            var cmd = new CommandDefinition(
+                sql,
+                param,
+                cancellationToken: token);
+        
+            await connection.ExecuteAsync(cmd);
+        }
     }
 }
