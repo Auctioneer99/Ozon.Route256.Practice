@@ -28,11 +28,12 @@ public static class KafkaMappingExtensions
             createdAt);
     }
 
-    public static AddressDto ToDto(this Kafka.Consumer.PreOrders.Models.PreAddress address, long regionId, long customerId)
+    public static AddressDto ToDto(this Kafka.Consumer.PreOrders.Models.PreAddress address, long regionId, long orderId, long customerId)
     {
         return new AddressDto(
             0,
             regionId,
+            orderId,
             customerId,
             address.City,
             address.Street,

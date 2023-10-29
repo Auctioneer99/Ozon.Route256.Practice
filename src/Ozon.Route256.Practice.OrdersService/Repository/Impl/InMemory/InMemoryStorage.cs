@@ -44,6 +44,7 @@ public sealed class InMemoryStorage
                 x,
                 Faker.RandomNumber.Next(1, 3),
                 Faker.RandomNumber.Next(1, 50),
+                Faker.RandomNumber.Next(1, 100),
                 Faker.Address.City(),
                 Faker.Address.StreetName(),
                 Faker.RandomNumber.Next().ToString(),

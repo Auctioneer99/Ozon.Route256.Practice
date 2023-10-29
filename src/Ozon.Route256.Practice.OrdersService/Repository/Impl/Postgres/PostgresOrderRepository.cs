@@ -184,7 +184,7 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
             insert into {Table}({FieldsForInsert})
             values (:id, :count, :total_sum, :total_weight, :type, :state, :region_from_id, :customer_id, :created_at);";
 
-        await using var connection = GetConnectionByShardKey(order.Id);
+        await using var connection = GetConnectionByShardKey(order.CustomerId);
         
         var param = new DynamicParameters();
         param.Add("id", order.Id);

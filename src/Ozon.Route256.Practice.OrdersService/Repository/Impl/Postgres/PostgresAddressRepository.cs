@@ -8,8 +8,8 @@ namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 
 public class PostgresAddressRepository : BaseShardRepository, IAddressRepository
 {
-    private const string Fields = "id, region_id, order_id, city, street, building, apartment, latitude, longitude";
-    private const string FieldsForInsert = "id, region_id, order_id, city, street, building, apartment, latitude, longitude";
+    private const string Fields = "id, region_id, order_id, customer_id, city, street, building, apartment, latitude, longitude";
+    private const string FieldsForInsert = "region_id, order_id, customer_id, city, street, building, apartment, latitude, longitude";
     private const string Table = $"{Shards.BucketPlaceholder}.addresses";
      
     public PostgresAddressRepository(
@@ -122,15 +122,15 @@ public class PostgresAddressRepository : BaseShardRepository, IAddressRepository
     {
         const string sql = @$"
             insert into {Table}({FieldsForInsert})
-            values (:id, :region_id, :order_id, :city, :street, :building, :apartment, :latitude, :longitude)
+            values (:region_id, :order_id, :customer_id, :city, :street, :building, :apartment, :latitude, :longitude)
             returning id;";
         
-        await using var connection = GetConnectionByShardKey(dto.OrderId);
+        await using var connection = GetConnectionByShardKey(dto.CustomerId);
         
         var param = new DynamicParameters();
-        param.Add("id", dto.Id);
         param.Add("region_id", dto.RegionId);
         param.Add("order_id", dto.OrderId);
+        param.Add("customer_id", dto.CustomerId);
         param.Add("city", dto.City);
         param.Add("street", dto.Street);
         param.Add("building", dto.Building);
