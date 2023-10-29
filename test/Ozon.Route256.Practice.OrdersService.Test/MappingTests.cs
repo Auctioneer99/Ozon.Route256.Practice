@@ -30,14 +30,13 @@ public sealed class MappingTests
             2,
             123,
             432,
-            OrderType.Web,
-            OrderState.Cancelled,
-            1,
+            (int)OrderType.Web,
+            (int)OrderState.Cancelled,
             1,
             1,
             DateTime.UtcNow);
 
-        var region = new RegionDto(1, "Moscow", 55.7522, 37.6156);
+        var region = new RegionDto(1, "Moscow", (decimal)55.7522, (decimal)37.6156);
 
         var customer = new CustomerDto(1, "asd", "dsa", "123123123", "a@a.a");
 
@@ -56,8 +55,8 @@ public sealed class MappingTests
 
         Assert.Equal(order.Id, mapped.Id);
         Assert.Equal(order.Count, mapped.Count);
-        Assert.Equal(order.TotalSum, mapped.TotalSum);
-        Assert.Equal(order.TotalWeight, mapped.TotalWeight);
+        Assert.Equal(order.TotalSum, (decimal)mapped.TotalSum);
+        Assert.Equal(order.TotalWeight, (decimal)mapped.TotalWeight);
         Assert.Equal(Grpc.Orders.Order.Types.OrderType.Web, mapped.Type);
         Assert.Equal(Grpc.Orders.Order.Types.OrderState.Cancelled, mapped.State);
         Assert.Equal(order.CreatedAt, mapped.CreatedAt.ToDateTime());
@@ -79,14 +78,16 @@ public sealed class MappingTests
         var model = new AddressDto(
             1,
             2,
+            3,
+            4,
             "asdasd",
             "sadasd",
             "dsfdsf",
             "asdasdasd",
-            45.6546,
-            43.3434);
+            (decimal)45.6546,
+            (decimal)43.3434);
 
-        var region = new RegionDto(2, "Moscow", 55.7522, 37.6156);
+        var region = new RegionDto(2, "Moscow", (decimal)55.7522, (decimal)37.6156);
 
         var mapped = model.FromDto(region);
 
@@ -95,8 +96,8 @@ public sealed class MappingTests
         Assert.Equal(model.Street, mapped.Street);
         Assert.Equal(model.Building, mapped.Building);
         Assert.Equal(model.Apartment, mapped.Apartment);
-        Assert.Equal(model.Latitude, mapped.Latitude);
-        Assert.Equal(model.Longitude, mapped.Longitude);
+        Assert.Equal(model.Latitude, (decimal)mapped.Latitude);
+        Assert.Equal(model.Longitude, (decimal)mapped.Longitude);
     }
 
     [Fact]
@@ -276,17 +277,16 @@ public sealed class MappingTests
             });
 
         var date = DateTime.UtcNow;
-        var mapped = order.ToDto(2, 3, date);
+        var mapped = order.ToDto(2, date);
         
         Assert.Equal(order.Id, mapped.Id);
         Assert.Equal(order.Goods.Sum(g => g.Quantity), mapped.Count);
-        Assert.Equal(order.Goods.Sum(g => g.Price), mapped.TotalSum);
-        Assert.Equal(order.Goods.Sum(g => g.Weight), mapped.TotalWeight);
-        Assert.Equal(OrderType.Web, mapped.Type);
-        Assert.Equal(OrderState.Created, mapped.State);
+        Assert.Equal(order.Goods.Sum(g => g.Price), (double)mapped.TotalSum);
+        Assert.Equal(order.Goods.Sum(g => g.Weight), (double)mapped.TotalWeight);
+        Assert.Equal((int)OrderType.Web, mapped.Type);
+        Assert.Equal((int)OrderState.Created, mapped.State);
         Assert.Equal(2, mapped.RegionFromId);
         Assert.Equal(order.Customer.Id, mapped.CustomerId);
-        Assert.Equal(3, mapped.AddressId);
         Assert.Equal(date, mapped.CreatedAt);
     }
 
@@ -302,7 +302,7 @@ public sealed class MappingTests
             20.3,
             54.3);
 
-        var mapped = address.ToDto(3);
+        var mapped = address.ToDto(3, 2, 1);
         
         Assert.Equal(0, mapped.Id);
         Assert.Equal(3, mapped.RegionId);
@@ -310,7 +310,7 @@ public sealed class MappingTests
         Assert.Equal(address.Street, mapped.Street);
         Assert.Equal(address.Building, mapped.Building);
         Assert.Equal(address.Apartment, mapped.Apartment);
-        Assert.Equal(address.Latitude, mapped.Latitude);
-        Assert.Equal(address.Longitude, mapped.Longitude);
+        Assert.Equal(address.Latitude, (double)mapped.Latitude);
+        Assert.Equal(address.Longitude, (double)mapped.Longitude);
     }
 }

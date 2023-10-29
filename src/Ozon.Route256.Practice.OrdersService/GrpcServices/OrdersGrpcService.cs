@@ -97,7 +97,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         {
             Orders =
             {
-                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == 0) })
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.OrderId == o.Id) })
                     .Select(pair => pair.Order.FromDto(
                         regions.First(r => r.Id == pair.Order.RegionFromId),
                         customers.First(c => c.Id == pair.Order.CustomerId),
@@ -159,7 +159,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         {
             Orders =
             {
-                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == 0l) })
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.OrderId == o.Id) })
                     .Select(pair => pair.Order.FromDto(
                         regions.First(r => r.Id == pair.Order.RegionFromId),
                         customer,
