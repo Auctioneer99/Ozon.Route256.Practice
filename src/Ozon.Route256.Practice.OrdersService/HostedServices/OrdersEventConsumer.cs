@@ -8,7 +8,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.OrdersE
 
 namespace Ozon.Route256.Practice.OrdersService.HostedServices;
 
-internal sealed class OrdersEventConsumer : BackgroundService
+public sealed class OrdersEventConsumer : BackgroundService
 {
     private readonly ILogger<OrdersEventConsumer> _logger;
     private readonly IConsumerProvider _consumerProvider;

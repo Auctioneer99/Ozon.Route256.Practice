@@ -2,7 +2,7 @@
 
 namespace Ozon.Route256.Practice.OrdersService.HostedServices.Config;
 
-internal sealed class PreOrderConsumerConfig
+public sealed class PreOrderConsumerConfig
 {
     public string Topic { get; init; }
 

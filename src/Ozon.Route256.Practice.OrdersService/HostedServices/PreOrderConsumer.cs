@@ -8,7 +8,7 @@ using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrde
 
 namespace Ozon.Route256.Practice.OrdersService.HostedServices;
 
-internal sealed class PreOrderConsumer : BackgroundService
+public sealed class PreOrderConsumer : BackgroundService
 {
     private readonly ILogger<PreOrderConsumer> _logger;
     private readonly IConsumerProvider _consumerProvider;

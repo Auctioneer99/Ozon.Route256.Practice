@@ -2,6 +2,7 @@
 using Ozon.Route256.Practice.OrdersService.Application.Models;
 using Ozon.Route256.Practice.OrdersService.Domain.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Mapping;
 using Ozon.Route256.Practice.OrdersService.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
@@ -13,7 +14,7 @@ public sealed class MappingTests
     {
         var model = OrderState.Cancelled;
 
-        Assert.Equal(Grpc.Orders.Order.Types.OrderState.Cancelled, model.FromDto());
+        Assert.Equal(Grpc.Orders.Order.Types.OrderState.Cancelled, model.ToHost());
     }
 
     [Fact]
@@ -21,59 +22,9 @@ public sealed class MappingTests
     {
         var model = OrderType.Mobile;
 
-        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Mobile, model.FromDto());
+        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Mobile, model.ToHost());
     }
-
-    [Fact]
-    public void OrderTest()
-    {
-        var order = new Order(
-            1,
-            2,
-            123,
-            432,
-            (int)OrderType.Web,
-            (int)OrderState.Cancelled,
-            1,
-            1,
-            DateTime.UtcNow);
-
-        var region = new Region(1, "Moscow", (decimal)55.7522, (decimal)37.6156);
-
-        var customer = new Customer(1, "asd", "dsa", "123123123", "a@a.a");
-
-        var address = new Grpc.Orders.Order.Types.Address
-        {
-            Region = "Novosibirsk",
-            City = "asd",
-            Street = "fdsf",
-            Building = "asdasd",
-            Apartment = "324234",
-            Latitude = 123.543,
-            Longitude = 23.2
-        };
-
-        var mapped = order.FromDto(region, customer, address);
-
-        Assert.Equal(order.Id, mapped.Id);
-        Assert.Equal(order.Count, mapped.Count);
-        Assert.Equal(order.TotalSum, (decimal)mapped.TotalSum);
-        Assert.Equal(order.TotalWeight, (decimal)mapped.TotalWeight);
-        Assert.Equal(Grpc.Orders.Order.Types.OrderType.Web, mapped.Type);
-        Assert.Equal(Grpc.Orders.Order.Types.OrderState.Cancelled, mapped.State);
-        Assert.Equal(order.CreatedAt, mapped.CreatedAt.ToDateTime());
-        Assert.Equal(region.Name, mapped.RegionFrom);
-        Assert.Equal(address.Apartment, mapped.OrderAddress.Apartment);
-        Assert.Equal(address.Building, mapped.OrderAddress.Building);
-        Assert.Equal(address.Street, mapped.OrderAddress.Street);
-        Assert.Equal(address.City, mapped.OrderAddress.City);
-        Assert.Equal(address.Region, mapped.OrderAddress.Region);
-        Assert.Equal(address.Latitude, mapped.OrderAddress.Latitude);
-        Assert.Equal(address.Longitude, mapped.OrderAddress.Longitude);
-        Assert.Equal($"{customer.FirstName} {customer.LastName}", mapped.CustomerName);
-        Assert.Equal(customer.MobileNumber, mapped.Phone);
-    }
-
+    
     [Fact]
     public void AddressTest()
     {
@@ -91,7 +42,7 @@ public sealed class MappingTests
 
         var region = new Region(2, "Moscow", (decimal)55.7522, (decimal)37.6156);
 
-        var mapped = model.FromDto(region);
+        var mapped = model.ToHost(region);
 
         Assert.Equal(region.Name, mapped.Region);
         Assert.Equal(model.City, mapped.City);
@@ -107,7 +58,7 @@ public sealed class MappingTests
     {
         var model = new CancelOrderResponse(true, "Error");
 
-        var mapped = model.FromDto();
+        var mapped = model.ToHost();
 
         Assert.Equal(model.Success, mapped.IsSuccess);
         Assert.Equal(model.Error, mapped.Error);
@@ -118,7 +69,7 @@ public sealed class MappingTests
     {
         var model = Grpc.Orders.Order.Types.SortField.CreatedAt;
 
-        Assert.Equal(OrderField.CreatedAt, model.ToDto());
+        Assert.Equal(OrderField.CreatedAt, model.ToApplication());
     }
 
     [Fact]
@@ -126,7 +77,7 @@ public sealed class MappingTests
     {
         var model = Grpc.Orders.SortType.Descending;
 
-        Assert.Equal(SortingType.Descending, model.ToDto());
+        Assert.Equal(SortingType.Descending, model.ToApplication());
     }
 
     [Fact]
@@ -134,7 +85,7 @@ public sealed class MappingTests
     {
         var model = Grpc.Orders.Order.Types.OrderType.Web;
 
-        Assert.Equal(OrderType.Web, model.ToDto());
+        Assert.Equal(OrderType.Web, model.ToApplication());
     }
 
     [Fact]
@@ -159,7 +110,7 @@ public sealed class MappingTests
             }
         };
 
-        var mapped = model.ToDto();
+        var mapped = model.ToDomain();
 
         Assert.Equal(model.Id, mapped.Id);
         Assert.Equal(model.FirstName, mapped.FirstName);
@@ -183,15 +134,13 @@ public sealed class MappingTests
             SortField = Grpc.Orders.Order.Types.SortField.Count
         };
 
-        var regions = new long[] { 1, 2 };
-        var mapped = model.ToDto(regions);
+        var mapped = model.ToApplication();
         
-        Assert.Equal(model.Sort.ToDto(), mapped.SortingType);
-        Assert.Equal(model.SortField.ToDto(), mapped.OrderField);
+        Assert.Equal(model.Sort.ToApplication(), mapped.SortingType);
+        Assert.Equal(model.SortField.ToApplication(), mapped.OrderField);
         Assert.Equal(model.Page.TakeCount, mapped.TakeCount);
         Assert.Equal(model.Page.SkipCount, mapped.SkipCount);
-        Assert.Equal(model.OrderTypeFilter.ToDto(), mapped.OrderType);
-        Assert.Equal(regions, mapped.Regions);
+        Assert.Equal(model.OrderTypeFilter.ToApplication(), mapped.OrderType);
     }
 
     [Fact]
@@ -203,7 +152,7 @@ public sealed class MappingTests
             Error = "asd"
         };
 
-        var mapped = model.ToDto();
+        var mapped = model.ToApplication();
         
         Assert.Equal(model.Success, mapped.Success);
         Assert.Equal(model.Error, mapped.Error);
@@ -223,7 +172,7 @@ public sealed class MappingTests
             }
         };
 
-        var mapped = model.ToDto();
+        var mapped = model.ToApplication();
 
         Assert.Equal(model.CustomerId, mapped.CustomerId);
         Assert.Equal(model.From.ToDateTime(), mapped.From);
@@ -236,7 +185,7 @@ public sealed class MappingTests
     {
         var state = Infrastructure.Kafka.Consumer.OrdersEvents.Models.OrderState.Created;
 
-        var mapped = state.ToDto();
+        var mapped = state.ToDomain();
         
         Assert.Equal(OrderState.Created, mapped);
     }
@@ -246,7 +195,7 @@ public sealed class MappingTests
     {
         var source = OrderSource.Mobile;
 
-        var mapped = source.ToDto();
+        var mapped = source.ToDomain();
         
         Assert.Equal(OrderType.Mobile, mapped);
     }
@@ -279,14 +228,14 @@ public sealed class MappingTests
             });
 
         var date = DateTime.UtcNow;
-        var mapped = order.ToDto(2, date);
+        var mapped = order.ToDomain(2, date);
         
         Assert.Equal(order.Id, mapped.Id);
         Assert.Equal(order.Goods.Sum(g => g.Quantity), mapped.Count);
         Assert.Equal(order.Goods.Sum(g => g.Price), (double)mapped.TotalSum);
         Assert.Equal(order.Goods.Sum(g => g.Weight), (double)mapped.TotalWeight);
-        Assert.Equal((int)OrderType.Web, mapped.Type);
-        Assert.Equal((int)OrderState.Created, mapped.State);
+        Assert.Equal(OrderType.Web, mapped.Type);
+        Assert.Equal(OrderState.Created, mapped.State);
         Assert.Equal(2, mapped.RegionFromId);
         Assert.Equal(order.Customer.Id, mapped.CustomerId);
         Assert.Equal(date, mapped.CreatedAt);
@@ -304,9 +253,9 @@ public sealed class MappingTests
             20.3,
             54.3);
 
-        var mapped = address.ToDto(3, 2, 1);
+        var mapped = address.ToDomain(3, 2, 1);
         
-        Assert.Equal(0, mapped.Id);
+        Assert.Equal(2, mapped.Id);
         Assert.Equal(3, mapped.RegionId);
         Assert.Equal(address.City, mapped.City);
         Assert.Equal(address.Street, mapped.Street);

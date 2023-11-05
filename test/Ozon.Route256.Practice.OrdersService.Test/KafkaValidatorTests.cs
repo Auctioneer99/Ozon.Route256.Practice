@@ -1,7 +1,6 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Domain.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Producer;
-using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 

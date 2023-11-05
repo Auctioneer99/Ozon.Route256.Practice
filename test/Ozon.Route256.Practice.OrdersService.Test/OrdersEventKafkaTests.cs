@@ -4,13 +4,13 @@ using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Ozon.Route256.Practice.OrdersService.Application.Repository;
 using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
-using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.HostedServices;
 using Ozon.Route256.Practice.OrdersService.HostedServices.Config;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.OrdersEvents;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.OrdersEvents.Models;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
 using OrderState = Ozon.Route256.Practice.OrdersService.Domain.Models.OrderState;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
@@ -115,6 +115,7 @@ public class OrdersEventKafkaTests
                 return type.Name switch
                 {
                     nameof(IOrderRepository) => orderRepository,
+                    nameof(OrdersEventsService) => new OrdersEventsService(orderRepository),
                     _ => throw new NotImplementedException()
                 };
             });

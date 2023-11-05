@@ -4,16 +4,15 @@ using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Ozon.Route256.Practice.OrdersService.Application.Repository;
 using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Domain.Models;
-using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.HostedServices;
 using Ozon.Route256.Practice.OrdersService.HostedServices.Config;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Producer;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
@@ -141,11 +140,13 @@ public class PreOrderKafkaTests
             {
                 return type.Name switch
                 {
-                    nameof(IRegionRepository) => regionRepository,
-                    nameof(IOrderRepository) => orderRepository,
-                    nameof(IAddressRepository) => addressRepository,
-                    nameof(NewOrderValidator) => validator,
-                    nameof(NewOrderProducer) => orderProducer,
+                    nameof(PreOrdersService) => new PreOrdersService(
+                        A.Fake<ILogger<PreOrdersService>>(),
+                        orderRepository,
+                        addressRepository,
+                        regionRepository,
+                        validator,
+                        orderProducer),
                     _ => throw new NotImplementedException()
                 };
             });

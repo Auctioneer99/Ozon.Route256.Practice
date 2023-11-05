@@ -1,21 +1,19 @@
 ﻿using FakeItEasy;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Ozon.Route256.Practice.OrdersService.Application.Models;
+using Ozon.Route256.Practice.OrdersService.Application.Repository;
 using Ozon.Route256.Practice.OrdersService.Application.Repository.Models;
+using Ozon.Route256.Practice.OrdersService.Application.Services.Impl;
 using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Domain.Models;
-using Ozon.Route256.Practice.OrdersService.Exceptions;
-using Ozon.Route256.Practice.OrdersService.Grpc.Orders;
-using Ozon.Route256.Practice.OrdersService.GrpcServices;
-using Empty = Ozon.Route256.Practice.OrdersService.Grpc.Orders.Empty;
+using Order = Ozon.Route256.Practice.OrdersService.Domain.Models.Order;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
 public sealed class OrdersGrpcServiceTests
 {
-    private readonly OrdersGrpcService _service;
-    private readonly ServerCallContext _context;
+    private readonly OrderService _orderService;
+    private readonly RegionService _regionService;
 
     public OrdersGrpcServiceTests()
     {
@@ -25,13 +23,14 @@ public sealed class OrdersGrpcServiceTests
         var logisticsRepository = FakeLogisticsRepository();
         var customerRepository = FakeCustomerRepository();
 
-        _service = new OrdersGrpcService(
+        _orderService = new OrderService(
             regionRepository,
             orderRepository,
             addressRepository,
             logisticsRepository,
             customerRepository);
-        _context = A.Fake<ServerCallContext>();
+        _regionService = new RegionService(
+            regionRepository);
     }
 
     private IRegionRepository FakeRegionRepository()
@@ -108,8 +107,8 @@ public sealed class OrdersGrpcServiceTests
             (int)(id * 2),
             id * (decimal)1.5,
             id * (decimal)3.5,
-            (int)(id % 2 + 1),
-            (int)(id % 5 + 1),
+            (OrderType)(id % 2 + 1),
+            (OrderState)(id % 5 + 1),
             id,
             id,
             DateTime.Now);
@@ -119,7 +118,7 @@ public sealed class OrdersGrpcServiceTests
     {
         return Enumerable.Range(1, 100)
             .Select(i => CreateOrderDto(i + repositoryRequest.SkipCount))
-            .Where(i => i.Type == (int)repositoryRequest.OrderType)
+            .Where(i => i.Type == repositoryRequest.OrderType)
             .Where(i => repositoryRequest.Regions.Contains(i.RegionFromId))
             .Take((int)repositoryRequest.TakeCount)
             .ToArray();
@@ -211,10 +210,7 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestCancelFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.CancelOrder(new CancelRequest()
-        {
-            Id = 0
-        }, _context));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _orderService.CancelOrder(0, CancellationToken.None));
         
         Assert.Equal("0", ex.Message);
     }
@@ -222,44 +218,32 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestSuccessCancel()
     {
-        var result = await _service.CancelOrder(new CancelRequest()
-        {
-            Id = 1
-        }, _context);
+        var result = await _orderService.CancelOrder(1, CancellationToken.None);
         
-        Assert.True(result.IsSuccess);
+        Assert.True(result.Success);
     }
     
     [Fact]
     public async Task TestLastStageCancel()
     {
-        var result = await _service.CancelOrder(new CancelRequest()
-        {
-            Id = 2
-        }, _context);
+        var result = await _orderService.CancelOrder(2, CancellationToken.None);
         
-        Assert.False(result.IsSuccess);
+        Assert.False(result.Success);
     }
     
 
     [Fact]
     public async Task TestFailCancel()
     {
-        var result = await _service.CancelOrder(new CancelRequest()
-        {
-            Id = 4
-        }, _context);
+        var result = await _orderService.CancelOrder(4, CancellationToken.None);
         
-        Assert.False(result.IsSuccess);
+        Assert.False(result.Success);
     }
 
     [Fact]
     public async Task TestGetStatusFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetStatusById(new GetStatusByIdRequest
-        {
-            Id = 0
-        }, _context));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _orderService.GetStatusById(0, CancellationToken.None));
         
         Assert.Equal("0", ex.Message);
     }
@@ -267,48 +251,38 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetStatusSent()
     {
-        var result = await _service.GetStatusById(new GetStatusByIdRequest
-        {
-            Id = 1
-        }, _context);
+        var result = await _orderService.GetStatusById(1, CancellationToken.None);
         
-        Assert.Equal(Order.Types.OrderState.SentToCustomer, result.State);
+        Assert.Equal(OrderState.SentToCustomer, result);
     }
     
     [Fact]
     public async Task TestGetStatusDelivered()
     {
-        var result = await _service.GetStatusById(new GetStatusByIdRequest
-        {
-            Id = 2
-        }, _context);
+        var result = await _orderService.GetStatusById(2, CancellationToken.None);
         
-        Assert.Equal(Order.Types.OrderState.Delivered, result.State);
+        Assert.Equal(OrderState.Delivered, result);
     }
 
     [Fact]
     public async Task TestGetRegions()
     {
-        var result = await _service.GetRegions(new Empty(), _context);
+        var result = await _regionService.GetRegions(CancellationToken.None);
         
-        Assert.True(result.Regions.Any());
+        Assert.True(result.Any());
     }
 
     [Fact]
     public async Task TestGetOrdersRegionsFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrders(new OrdersRequest
-        {
-            RegionFilter = { "1", "0" },
-            OrderTypeFilter = Order.Types.OrderType.UndefinedType,
-            Page = new PagingRequest
-            {
-                SkipCount = 10,
-                TakeCount = 40
-            },
-            Sort = SortType.None,
-            SortField = Order.Types.SortField.NoneField
-        }, _context));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _orderService.GetOrders(new OrdersRequest(
+            Regions: new [] { "1", "0" },
+            OrderType: OrderType.Undefined,
+            SkipCount: 10,
+            TakeCount: 40,
+            SortingType: SortingType.None,
+            OrderField: OrderField.NoneField,
+            From: DateTime.Now), CancellationToken.None));
         
         Assert.Equal("1, 0", ex.Message);
     }
@@ -316,30 +290,23 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrders()
     {
-        var result = await _service.GetOrders(new OrdersRequest
-        {
-            RegionFilter = { "1", "2" },
-            OrderTypeFilter = Order.Types.OrderType.UndefinedType,
-            Page = new PagingRequest
-            {
-                SkipCount = 10,
-                TakeCount = 40
-            },
-            Sort = SortType.None,
-            SortField = Order.Types.SortField.NoneField
-        }, _context);
+        var result = await _orderService.GetOrders(new OrdersRequest(
+            Regions: new [] { "1", "2" },
+            OrderType: OrderType.Undefined,
+            SkipCount: 10,
+            TakeCount: 40,
+            SortingType: SortingType.None,
+            OrderField: OrderField.NoneField,
+            From: DateTime.Now), CancellationToken.None);
 
-        Assert.NotNull(result.Orders);
+        Assert.Empty(result);
     }
 
     [Fact]
     public async Task TestGetOrdersAggregationFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrdersAggregation(new OrdersAggregationRequest
-        {
-            Regions = { "0", "1" },
-            FromDate = DateTime.UtcNow.ToTimestamp()
-        }, _context));
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() =>
+            _orderService.GetOrdersAggregation(new OrdersAggregationRequest(new[] { "0", "1" }, DateTime.Now), CancellationToken.None));
         
         Assert.Equal("0, 1", ex.Message);
     }
@@ -347,29 +314,20 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrdersAggregation()
     {
-        var result = await _service.GetOrdersAggregation(new OrdersAggregationRequest
-        {
-            Regions = { "1", "2" },
-            FromDate = DateTime.UtcNow.ToTimestamp()
-        }, _context);
+        var result = await _orderService.GetOrdersAggregation(new OrdersAggregationRequest(new[] { "1", "2" }, DateTime.Now), CancellationToken.None);
 
-        Assert.NotNull(result.Aggregations);
+        Assert.Empty(result);
     }
 
     [Fact]
     public async Task TestGetCustomerOrdersFail()
     {
-        var request = new GetCustomerOrdersRequest
-        {
-            CustomerId = 0,
-            Page = new PagingRequest
-            {
-                SkipCount = 0,
-                TakeCount = 0
-            },
-            From = Timestamp.FromDateTime(DateTime.UtcNow)
-        };
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetCustomerOrders(request, _context));
+        var request = new CustomerOrdersRequest(
+            CustomerId: 0,
+            SkipCount: 0,
+            TakeCount: 0,
+            From: DateTime.UtcNow);
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _orderService.GetCustomerOrders(request, CancellationToken.None));
         
         Assert.Equal("0", ex.Message);
     }
@@ -377,17 +335,13 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetCustomerOrders()
     {
-        var request = new GetCustomerOrdersRequest
-        {
-            CustomerId = 1,
-            Page = new PagingRequest
-            {
-                SkipCount = 0,
-                TakeCount = 100
-            },
-            From = Timestamp.FromDateTime(DateTime.UtcNow)
-        };
-        var result = await _service.GetCustomerOrders(request, _context);
+        var request = new CustomerOrdersRequest(
+            CustomerId: 1,
+            SkipCount: 0,
+            TakeCount: 100,
+            From: DateTime.UtcNow
+        );
+        var result = await _orderService.GetCustomerOrders(request, CancellationToken.None);
         
         Assert.NotNull(result);
     }
