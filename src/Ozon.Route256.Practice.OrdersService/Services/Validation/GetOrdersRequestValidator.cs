@@ -1,6 +1,6 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class GetOrdersRequestValidator : IValidator<Grpc.Orders.GetOrdersRequest>
+internal sealed class GetOrdersRequestValidator : IValidator<Grpc.Orders.GetOrdersRequest>
 {
     public bool Validate(Grpc.Orders.GetOrdersRequest model)
     {

@@ -1,6 +1,8 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using Ozon.Route256.Practice.OrdersService.Repository.Dto;
-using Ozon.Route256.Practice.OrdersService.Services.Mapping;
+using Ozon.Route256.Practice.OrdersService.Application.Models;
+using Ozon.Route256.Practice.OrdersService.Domain.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
+using Ozon.Route256.Practice.OrdersService.Mapping;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
@@ -25,7 +27,7 @@ public sealed class MappingTests
     [Fact]
     public void OrderTest()
     {
-        var order = new OrderDto(
+        var order = new Order(
             1,
             2,
             123,
@@ -36,9 +38,9 @@ public sealed class MappingTests
             1,
             DateTime.UtcNow);
 
-        var region = new RegionDto(1, "Moscow", (decimal)55.7522, (decimal)37.6156);
+        var region = new Region(1, "Moscow", (decimal)55.7522, (decimal)37.6156);
 
-        var customer = new CustomerDto(1, "asd", "dsa", "123123123", "a@a.a");
+        var customer = new Customer(1, "asd", "dsa", "123123123", "a@a.a");
 
         var address = new Grpc.Orders.Order.Types.Address
         {
@@ -75,7 +77,7 @@ public sealed class MappingTests
     [Fact]
     public void AddressTest()
     {
-        var model = new AddressDto(
+        var model = new Address(
             1,
             2,
             3,
@@ -87,7 +89,7 @@ public sealed class MappingTests
             (decimal)45.6546,
             (decimal)43.3434);
 
-        var region = new RegionDto(2, "Moscow", (decimal)55.7522, (decimal)37.6156);
+        var region = new Region(2, "Moscow", (decimal)55.7522, (decimal)37.6156);
 
         var mapped = model.FromDto(region);
 
@@ -103,7 +105,7 @@ public sealed class MappingTests
     [Fact]
     public void CancelResponseTest()
     {
-        var model = new CancelResultDto(true, "Error");
+        var model = new CancelOrderResponse(true, "Error");
 
         var mapped = model.FromDto();
 
@@ -232,7 +234,7 @@ public sealed class MappingTests
     [Fact]
     public void OrderKafkaStateTest()
     {
-        var state = Kafka.Consumer.OrdersEvents.Models.OrderState.Created;
+        var state = Infrastructure.Kafka.Consumer.OrdersEvents.Models.OrderState.Created;
 
         var mapped = state.ToDto();
         
@@ -242,7 +244,7 @@ public sealed class MappingTests
     [Fact]
     public void OrderSourceTest()
     {
-        var source = Kafka.Consumer.PreOrders.Models.OrderSource.Mobile;
+        var source = OrderSource.Mobile;
 
         var mapped = source.ToDto();
         
@@ -252,12 +254,12 @@ public sealed class MappingTests
     [Fact]
     public void PreOrderTest()
     {
-        var order = new Kafka.Consumer.PreOrders.Models.PreOrder(
+        var order = new PreOrder(
             1,
-            Kafka.Consumer.PreOrders.Models.OrderSource.Web,
-            new Kafka.Consumer.PreOrders.Models.PreCustomer(
+            OrderSource.Web,
+            new PreCustomer(
                 1,
-                new Kafka.Consumer.PreOrders.Models.PreAddress(
+                new PreAddress(
                     "Moscow",
                     "City",
                     "Street",
@@ -266,9 +268,9 @@ public sealed class MappingTests
                     12.12,
                     23.32)
             ),
-            new Kafka.Consumer.PreOrders.Models.PreGood[1]
+            new PreGood[1]
             {
-                new Kafka.Consumer.PreOrders.Models.PreGood(
+                new PreGood(
                     1,
                     "Good",
                     2,
@@ -293,7 +295,7 @@ public sealed class MappingTests
     [Fact]
     public void PreAddressTest()
     {
-        var address = new Kafka.Consumer.PreOrders.Models.PreAddress(
+        var address = new PreAddress(
             "Moscow",
             "City",
             "Street",

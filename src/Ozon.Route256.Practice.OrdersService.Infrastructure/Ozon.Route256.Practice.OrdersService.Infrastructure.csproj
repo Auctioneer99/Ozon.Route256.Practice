@@ -6,4 +6,26 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Repository" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Faker.Net" Version="2.0.154" />
+        <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
+        <PackageReference Include="Dapper" Version="2.1.15" />
+        <PackageReference Include="FluentMigrator" Version="3.3.2" />
+        <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
+        <PackageReference Include="murmurhash" Version="1.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Npgsql" Version="6.0.10" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Application\Ozon.Route256.Practice.OrdersService.Application.csproj" />
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Domain\Ozon.Route256.Practice.OrdersService.Domain.csproj" />
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Grpc\Ozon.Route256.Practice.OrdersService.Grpc.csproj" />
+    </ItemGroup>
+    
 </Project>

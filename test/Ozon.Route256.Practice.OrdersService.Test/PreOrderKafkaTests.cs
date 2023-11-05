@@ -4,13 +4,16 @@ using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
+using Ozon.Route256.Practice.OrdersService.Domain.Models;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
+using Ozon.Route256.Practice.OrdersService.HostedServices;
+using Ozon.Route256.Practice.OrdersService.HostedServices.Config;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Producer;
 using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
 using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
-using Ozon.Route256.Practice.OrdersService.Repository;
-using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
@@ -162,7 +165,7 @@ public class PreOrderKafkaTests
         var regionRepository = A.Fake<IRegionRepository>();
 
         A.CallTo(() => regionRepository.FindByName(A<string>._, A<CancellationToken>._))
-            .ReturnsLazily((string region, CancellationToken token) => new RegionDto(region.GetHashCode(), region, 1, 1));
+            .ReturnsLazily((string region, CancellationToken token) => new Region(region.GetHashCode(), region, 1, 1));
         A.CallTo(() => regionRepository.FindByName(A<string>._, A<CancellationToken>._))
             .WhenArgumentsMatch((string region, CancellationToken token) => long.Parse(region) > 10)
             .ThrowsAsync((string region, CancellationToken token) => new NotFoundException(region.ToString()));
@@ -176,10 +179,10 @@ public class PreOrderKafkaTests
         
         A.CallTo(() => addressRepository.FindByCoordinates(A<double>._, A<double>._, A<CancellationToken>._))
             .ReturnsLazily((double lat, double lon, CancellationToken token) =>
-                new AddressDto((int)lat, (int)lon, (int)lat, (int)lon, "asd", "asd", "asd", "asd", (decimal)lat, (decimal)lon));
+                new Address((int)lat, (int)lon, (int)lat, (int)lon, "asd", "asd", "asd", "asd", (decimal)lat, (decimal)lon));
 
-        A.CallTo(() => addressRepository.Add(A<AddressDto>._, A<CancellationToken>._))
-            .ReturnsLazily((AddressDto address, CancellationToken token) => address);
+        A.CallTo(() => addressRepository.Add(A<Address>._, A<CancellationToken>._))
+            .ReturnsLazily((Address address, CancellationToken token) => address);
         
         return addressRepository;
     }

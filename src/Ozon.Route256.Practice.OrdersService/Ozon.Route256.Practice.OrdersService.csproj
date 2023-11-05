@@ -8,31 +8,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Confluent.Kafka" Version="2.2.0" />
-        <PackageReference Include="Dapper" Version="2.1.15" />
-        <PackageReference Include="FluentMigrator" Version="3.3.2" />
-        <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
-        <PackageReference Include="murmurhash" Version="1.0.3" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Npgsql" Version="6.0.10" />
-        <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
-        <PackageReference Include="Faker.Net" Version="2.0.154" />
         <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
         <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.57.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Protos/Orders.proto" Type="Server" />
-        <Protobuf Include="Protos/Customers.proto" Type="Client" />
-        <Protobuf Include="Protos/LogisticsSimulator.proto" Type="Client" />
-        <Protobuf Include="Protos/sd.proto" Type="Client" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Application\Ozon.Route256.Practice.OrdersService.Application.csproj" />
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Domain\Ozon.Route256.Practice.OrdersService.Domain.csproj" />
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Grpc\Ozon.Route256.Practice.OrdersService.Grpc.csproj" />
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Infrastructure\Ozon.Route256.Practice.OrdersService.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Protobuf Include="Protos\Orders.proto" Type="Server" />
     </ItemGroup>
 
 </Project>

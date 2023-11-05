@@ -1,6 +1,6 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class CancelRequestValidator : IValidator<Grpc.Orders.CancelRequest>
+internal sealed class CancelRequestValidator : IValidator<Grpc.Orders.CancelRequest>
 {
     public bool Validate(Grpc.Orders.CancelRequest model)
     {

@@ -1,6 +1,7 @@
-﻿using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.PreOrders.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Domain.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.PreOrders.Models;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Producer;
 using Ozon.Route256.Practice.OrdersService.Kafka.Producer;
-using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
@@ -20,7 +21,7 @@ public class KafkaValidatorTests
             0,
             0
             );
-        var region = new RegionDto(
+        var region = new Region(
             0,
             "",
             0,
@@ -43,7 +44,7 @@ public class KafkaValidatorTests
             2,
             1
         );
-        var region = new RegionDto(
+        var region = new Region(
             0,
             "",
             1,
@@ -66,7 +67,7 @@ public class KafkaValidatorTests
             100,
             100
         );
-        var region = new RegionDto(
+        var region = new Region(
             0,
             "",
             0,

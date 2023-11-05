@@ -1,11 +1,13 @@
 ﻿using FakeItEasy;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Ozon.Route256.Practice.OrdersService.Application.Models;
+using Ozon.Route256.Practice.OrdersService.Application.Repository.Models;
+using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
+using Ozon.Route256.Practice.OrdersService.Domain.Models;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Grpc.Orders;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
-using Ozon.Route256.Practice.OrdersService.Repository;
-using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 using Empty = Ozon.Route256.Practice.OrdersService.Grpc.Orders.Empty;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
@@ -63,15 +65,15 @@ public sealed class OrdersGrpcServiceTests
         return fake;
     }
 
-    private RegionDto CreateRegionDto(long id)
+    private Region CreateRegionDto(long id)
     {
-        return new RegionDto(id, id.ToString(), id, id);
+        return new Region(id, id.ToString(), id, id);
     }
 
-    private RegionDto CreateRegionDto(string name)
+    private Region CreateRegionDto(string name)
     {
         var id = long.Parse(name);
-        return new RegionDto(id, name, id, id);
+        return new Region(id, name, id, id);
     }
     
     private IOrderRepository FakeOrderRepository()
@@ -84,11 +86,11 @@ public sealed class OrdersGrpcServiceTests
             .WhenArgumentsMatch((long id, CancellationToken token) => id <= 0 || id > 100)
             .ThrowsAsync((long id, CancellationToken token) => new NotFoundException(id.ToString()));
 
-        A.CallTo(() => fake.GetAll(A<OrderRequestDto>._, A<CancellationToken>._))
-            .ReturnsLazily((OrderRequestDto request, CancellationToken token) => GetOrders(request));
+        A.CallTo(() => fake.GetAll(A<OrderRepositoryRequest>._, A<CancellationToken>._))
+            .ReturnsLazily((OrderRepositoryRequest request, CancellationToken token) => GetOrders(request));
 
-        A.CallTo(() => fake.GetByCustomerId(A<OrderRequestByCustomerDto>._, A<CancellationToken>._))
-            .ReturnsLazily((OrderRequestByCustomerDto request, CancellationToken token) => GetOrders(request));
+        A.CallTo(() => fake.GetByCustomerId(A<OrderByCustomerRepositoryRequest>._, A<CancellationToken>._))
+            .ReturnsLazily((OrderByCustomerRepositoryRequest request, CancellationToken token) => GetOrders(request));
 
         A.CallTo(() => fake.UpdateOrderStatus(A<long>._, A<OrderState>._, A<CancellationToken>._))
             .ReturnsLazily((long id, OrderState state, CancellationToken token) => Task.CompletedTask);
@@ -99,9 +101,9 @@ public sealed class OrdersGrpcServiceTests
         return fake;
     }
 
-    private OrderDto CreateOrderDto(long id)
+    private Order CreateOrderDto(long id)
     {
-        return new OrderDto(
+        return new Order(
             id,
             (int)(id * 2),
             id * (decimal)1.5,
@@ -113,23 +115,23 @@ public sealed class OrdersGrpcServiceTests
             DateTime.Now);
     }
 
-    private OrderDto[] GetOrders(OrderRequestDto request)
+    private Order[] GetOrders(OrderRepositoryRequest repositoryRequest)
     {
         return Enumerable.Range(1, 100)
-            .Select(i => CreateOrderDto(i + request.SkipCount))
-            .Where(i => i.Type == (int)request.OrderType)
-            .Where(i => request.Regions.Contains(i.RegionFromId))
-            .Take((int)request.TakeCount)
+            .Select(i => CreateOrderDto(i + repositoryRequest.SkipCount))
+            .Where(i => i.Type == (int)repositoryRequest.OrderType)
+            .Where(i => repositoryRequest.Regions.Contains(i.RegionFromId))
+            .Take((int)repositoryRequest.TakeCount)
             .ToArray();
     }
 
-    private OrderDto[] GetOrders(OrderRequestByCustomerDto request)
+    private Order[] GetOrders(OrderByCustomerRepositoryRequest byCustomerRepositoryRequest)
     {
         return Enumerable.Range(1, 100)
             .Where(i => i <= 100)
-            .Select(i => CreateOrderDto(i + request.SkipCount))
-            .Where(i => i.CustomerId == request.CustomerId)
-            .Take((int)request.TakeCount)
+            .Select(i => CreateOrderDto(i + byCustomerRepositoryRequest.SkipCount))
+            .Where(i => i.CustomerId == byCustomerRepositoryRequest.CustomerId)
+            .Take((int)byCustomerRepositoryRequest.TakeCount)
             .ToArray();
     }
 
@@ -147,9 +149,9 @@ public sealed class OrdersGrpcServiceTests
         return fake;
     }
 
-    private AddressDto CreateAddressDto(long id)
+    private Address CreateAddressDto(long id)
     {
-        return new AddressDto(
+        return new Address(
             id + 1,
             id % 3 + 1,
             id,
@@ -175,9 +177,9 @@ public sealed class OrdersGrpcServiceTests
         return fake;
     }
 
-    private CancelResultDto CreateCancelResultDto(long id)
+    private CancelOrderResponse CreateCancelResultDto(long id)
     {
-        return new CancelResultDto(id % 2 == 1, id % 2 == 1 ? "" : "Error");
+        return new CancelOrderResponse(id % 2 == 1, id % 2 == 1 ? "" : "Error");
     }
 
     private ICustomerRepository FakeCustomerRepository()
@@ -200,9 +202,9 @@ public sealed class OrdersGrpcServiceTests
         return fake;
     }
 
-    private CustomerDto CreateCustomerDto(long id)
+    private Customer CreateCustomerDto(long id)
     {
-        return new CustomerDto((int)id, id.ToString() + "first", id.ToString() + "last", id.ToString(),
+        return new Customer((int)id, id.ToString() + "first", id.ToString() + "last", id.ToString(),
             id.ToString() + "@ru.ru");
     }
     
@@ -295,7 +297,7 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrdersRegionsFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrders(new GetOrdersRequest
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrders(new OrdersRequest
         {
             RegionFilter = { "1", "0" },
             OrderTypeFilter = Order.Types.OrderType.UndefinedType,
@@ -314,7 +316,7 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrders()
     {
-        var result = await _service.GetOrders(new GetOrdersRequest
+        var result = await _service.GetOrders(new OrdersRequest
         {
             RegionFilter = { "1", "2" },
             OrderTypeFilter = Order.Types.OrderType.UndefinedType,
@@ -333,7 +335,7 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrdersAggregationFail()
     {
-        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrdersAggregation(new GetOrdersAggregationRequest
+        var ex = await Assert.ThrowsAsync<NotFoundException>(() => _service.GetOrdersAggregation(new OrdersAggregationRequest
         {
             Regions = { "0", "1" },
             FromDate = DateTime.UtcNow.ToTimestamp()
@@ -345,7 +347,7 @@ public sealed class OrdersGrpcServiceTests
     [Fact]
     public async Task TestGetOrdersAggregation()
     {
-        var result = await _service.GetOrdersAggregation(new GetOrdersAggregationRequest
+        var result = await _service.GetOrdersAggregation(new OrdersAggregationRequest
         {
             Regions = { "1", "2" },
             FromDate = DateTime.UtcNow.ToTimestamp()

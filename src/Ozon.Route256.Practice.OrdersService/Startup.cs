@@ -1,7 +1,5 @@
-﻿using Ozon.Route256.Practice.OrdersService.Dal;
+﻿using Ozon.Route256.Practice.OrdersService.Extensions;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
-using Ozon.Route256.Practice.OrdersService.Kafka;
-using Ozon.Route256.Practice.OrdersService.Repository;
 
 namespace Ozon.Route256.Practice.OrdersService;
 
@@ -17,17 +15,20 @@ public sealed class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddKafka();
-        
-        services.AddGrpcServices(_configuration);
-        services.AddGrpcClients(_configuration);
-
-        services.AddPostgres(_configuration);
-        services.AddMigrations();
-        
-        services.AddRepositories(_configuration);
-        
+        // Host
+        services.AddGrpcServer(_configuration);
         services.AddEndpointsApiExplorer();
+
+        //Infrastructure
+        services.AddKafka();
+        services.AddPostgres(_configuration);
+        
+        //Grpc clients
+        services.AddGrpcClients(_configuration);
+        
+        //Application
+        services.AddRepositories(_configuration);
+        services.AddServices();
     }
 
     public void Configure(IApplicationBuilder app)

@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Domain\Ozon.Route256.Practice.OrdersService.Domain.csproj" />
+    </ItemGroup>
+
 </Project>
