@@ -17,7 +17,7 @@ internal sealed class ShardMigrationContext
         }
     }
     
-    private string _schema;
+    private string? _schema;
 
     public void SetSchema(int bucket)
     {

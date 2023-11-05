@@ -35,8 +35,8 @@ public abstract class SqlMigration : IMigration
         context.Expressions.Add(new ExecuteSqlStatementExpression {SqlStatement = sqlStatement});
     }
 
-    public object ApplicationContext { get; }
-    public string ConnectionString { get; }
+    public object? ApplicationContext { get; }
+    public string? ConnectionString { get; }
 
     protected abstract string GetUpSql(IServiceProvider provider);
     protected abstract string GetDownSql(IServiceProvider provider);

@@ -6,7 +6,7 @@ internal sealed class ShardVersionTableMetaData : IVersionTableMetaData
 {
     private readonly ShardMigrationContext _context;
 
-    public object ApplicationContext { get; set; }
+    public object? ApplicationContext { get; set; }
     
     public bool OwnsSchema => true;
     
