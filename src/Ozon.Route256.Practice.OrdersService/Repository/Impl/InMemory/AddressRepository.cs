@@ -33,12 +33,12 @@ public sealed class AddressRepository : IAddressRepository
 
         var point = 0.001;
         var value = _inMemoryStorage.Addresses.Values
-            .FirstOrDefault(a => Math.Abs(a.Latitude - latitude) < point && Math.Abs(a.Longitude - longitude) < point);
+            .FirstOrDefault(a => Math.Abs((double)a.Latitude - latitude) < point && Math.Abs((double)a.Longitude - longitude) < point);
 
         return Task.FromResult(value);
     }
 
-    public Task<AddressDto[]> FindManyById(IEnumerable<long> ids, CancellationToken token)
+    public Task<AddressDto[]> FindManyByOrderId(IEnumerable<long> ids, CancellationToken token)
     {
         if (token.IsCancellationRequested)
         {
@@ -49,7 +49,7 @@ public sealed class AddressRepository : IAddressRepository
         return Task.FromResult(addresses);
     }
 
-    public Task<AddressDto[]> GetManyById(IEnumerable<long> ids, CancellationToken token)
+    public Task<AddressDto[]> GetManyByOrderId(IEnumerable<long> ids, CancellationToken token)
     {
         if (token.IsCancellationRequested)
         {

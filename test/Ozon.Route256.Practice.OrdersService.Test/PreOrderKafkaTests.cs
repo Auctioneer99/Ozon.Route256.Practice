@@ -176,7 +176,7 @@ public class PreOrderKafkaTests
         
         A.CallTo(() => addressRepository.FindByCoordinates(A<double>._, A<double>._, A<CancellationToken>._))
             .ReturnsLazily((double lat, double lon, CancellationToken token) =>
-                new AddressDto((int)lat, (int)lon, "asd", "asd", "asd", "asd", lat, lon));
+                new AddressDto((int)lat, (int)lon, (int)lat, (int)lon, "asd", "asd", "asd", "asd", (decimal)lat, (decimal)lon));
 
         A.CallTo(() => addressRepository.Add(A<AddressDto>._, A<CancellationToken>._))
             .ReturnsLazily((AddressDto address, CancellationToken token) => address);

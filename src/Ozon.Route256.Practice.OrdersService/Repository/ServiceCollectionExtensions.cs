@@ -1,4 +1,5 @@
 ﻿using Ozon.Route256.Practice.OrdersService.Repository.Impl.Grpc;
+using Ozon.Route256.Practice.OrdersService.Repository.Impl.InMemory;
 using Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 using Ozon.Route256.Practice.OrdersService.Repository.Impl.Redis;
 
@@ -15,6 +16,9 @@ public static class ServiceCollectionExtensions
         //services.AddScoped<IRegionRepository, RegionRepository>();
         //services.AddScoped<IAddressRepository, AddressRepository>();
         //services.AddScoped<IOrderRepository, OrderRepository>();
+
+        services.AddSingleton<IShardsStore, ShardsStore>();
+        services.AddSingleton<IServiceDiscoveryRepository, ServiceDiscoveryRepository>();
         
         services.AddScoped<IRegionRepository, PostgresRegionRepository>();
         services.AddScoped<IAddressRepository, PostgresAddressRepository>();

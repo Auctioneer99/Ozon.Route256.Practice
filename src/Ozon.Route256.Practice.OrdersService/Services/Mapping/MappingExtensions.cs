@@ -21,10 +21,10 @@ public static class MappingExtensions
         {
             Id = order.Id,
             Count = order.Count,
-            TotalSum = order.TotalSum,
-            TotalWeight = order.TotalWeight,
-            Type = order.Type.FromDto(),
-            State = order.State.FromDto(),
+            TotalSum = (double)order.TotalSum,
+            TotalWeight = (double)order.TotalWeight,
+            Type = (Grpc.Orders.Order.Types.OrderType)order.Type,
+            State = (Grpc.Orders.Order.Types.OrderState)order.State,
             CreatedAt = order.CreatedAt.ToUniversalTime().ToTimestamp(),
             RegionFrom = region.Name,
             OrderAddress = address,
@@ -42,8 +42,8 @@ public static class MappingExtensions
             Street = address.Street,
             Building = address.Building,
             Apartment = address.Apartment,
-            Latitude = address.Latitude,
-            Longitude = address.Longitude
+            Latitude = (double)address.Latitude,
+            Longitude = (double)address.Longitude
         };
     }
 
@@ -90,7 +90,8 @@ public static class MappingExtensions
             request.Page.TakeCount,
             request.Page.SkipCount,
             request.OrderTypeFilter.ToDto(),
-            regions
+            regions,
+            new DateTime()
         );
     }
 

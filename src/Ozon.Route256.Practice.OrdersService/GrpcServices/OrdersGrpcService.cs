@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using Ozon.Route256.Practice.OrdersService.Grpc.Orders;
 using Ozon.Route256.Practice.OrdersService.Repository;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 using Ozon.Route256.Practice.OrdersService.Services.Mapping;
@@ -30,7 +31,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
     {
         var order = await _orderRepository.GetById(request.Id, context.CancellationToken);
 
-        if (order.State == OrderState.Delivered)
+        if (order.State == (int)OrderState.Delivered)
         {
             return new Grpc.Orders.CancelResponse
             {
@@ -62,7 +63,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
 
         return new Grpc.Orders.GetStatusByIdResponse()
         {
-            State = order.State.FromDto()
+            State = (Order.Types.OrderState)order.State
         };
     }
 
@@ -84,7 +85,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
 
         var addresses =
-            await _addressRepository.GetManyById(orders.Select(o => o.AddressId), context.CancellationToken);
+            await _addressRepository.GetManyByOrderId(orders.Select(o => o.Id), context.CancellationToken);
         var regionAddresses =
             await _regionRepository.GetManyById(addresses.Select(a => a.RegionId).Distinct(),
                 context.CancellationToken);
@@ -96,7 +97,7 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         {
             Orders =
             {
-                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == o.AddressId) })
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.OrderId == o.Id) })
                     .Select(pair => pair.Order.FromDto(
                         regions.First(r => r.Id == pair.Order.RegionFromId),
                         customers.First(c => c.Id == pair.Order.CustomerId),
@@ -117,7 +118,8 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
             0,
             0,
             OrderType.Undefined,
-            regions.Select(r => r.Id)
+            regions.Select(r => r.Id),
+            request.FromDate.ToDateTime()
         );
         var orders = await _orderRepository.GetAll(orderRequest, context.CancellationToken);
 
@@ -128,8 +130,8 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
             {
                 Region = regions.First(r => r.Id == group.Key).Name,
                 OrdersCount = group.Count(),
-                TotalOrdersSum = group.Sum(o => o.TotalSum),
-                TotalOrdersWeight = group.Sum(o => o.TotalWeight),
+                TotalOrdersSum = group.Sum(o => (double)o.TotalSum),
+                TotalOrdersWeight = group.Sum(o => (double)o.TotalWeight),
                 UniqueCustomersCount = group.Select(o => o.CustomerId).Distinct().Count()
             };
             entries.Add(entry);
@@ -145,19 +147,19 @@ public sealed class OrdersGrpcService : Grpc.Orders.Orders.OrdersBase
         ServerCallContext context)
     {
         var orderRequest = request.ToDto();
+        var customer = await _customerRepository.GetById(request.CustomerId, context.CancellationToken);
         var orders = await _orderRepository.GetByCustomerId(orderRequest, context.CancellationToken);
         var addresses =
-            await _addressRepository.GetManyById(orders.Select(o => o.AddressId), context.CancellationToken);
+            await _addressRepository.GetManyByOrderId(orders.Select(o => o.Id), context.CancellationToken);
         var regions = await _regionRepository.GetManyById(
             addresses.Select(a => a.RegionId).Union(orders.Select(o => o.RegionFromId)).Distinct(),
             context.CancellationToken);
-        var customer = await _customerRepository.GetById(request.CustomerId, context.CancellationToken);
 
         return new Grpc.Orders.GetCustomerOrdersResponse()
         {
             Orders =
             {
-                orders.Select(o => new { Order = o, Address = addresses.First(a => a.Id == o.AddressId) })
+                orders.Select(o => new { Order = o, Address = addresses.First(a => a.OrderId == o.Id) })
                     .Select(pair => pair.Order.FromDto(
                         regions.First(r => r.Id == pair.Order.RegionFromId),
                         customer,

@@ -1,6 +1,7 @@
 using System.Net;
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
 
 namespace Ozon.Route256.Practice.OrdersService;
 
@@ -34,9 +35,10 @@ public static class Program
         var needMigration = args.Length > 0 && args[0].Equals("migrate");
         if (needMigration)
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
             using var scope = host.Services.CreateScope();
-            var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-            runner.MigrateUp();
+            var runner = scope.ServiceProvider.GetRequiredService<IShardMigrator>();
+            await runner.Migrate(cts.Token);
         }
         else
         {

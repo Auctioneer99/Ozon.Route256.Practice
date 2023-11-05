@@ -6,5 +6,6 @@ public sealed record OrderRequestDto(
     long TakeCount,
     long SkipCount,
     OrderType OrderType,
-    IEnumerable<long> Regions
+    IEnumerable<long> Regions,
+    DateTime From
 );

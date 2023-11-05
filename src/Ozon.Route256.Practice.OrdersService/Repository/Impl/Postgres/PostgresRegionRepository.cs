@@ -1,21 +1,27 @@
-﻿using System.Data;
-using Npgsql;
-using Ozon.Route256.Practice.OrdersService.Dal.Common;
+﻿using Dapper;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
+using Ozon.Route256.Practice.OrdersService.Dal.Common.Shard;
 using Ozon.Route256.Practice.OrdersService.Exceptions;
 using Ozon.Route256.Practice.OrdersService.Repository.Dto;
 
 namespace Ozon.Route256.Practice.OrdersService.Repository.Impl.Postgres;
 
-public class PostgresRegionRepository : IRegionRepository
+public class PostgresRegionRepository : BaseShardRepository, IRegionRepository
 {
-    private readonly IPostgresConnectionFactory _factory;
-
-    private const string Fields = "id, name, latitude, longitude";
-    private const string Table = "regions";
+    private readonly IShardsStore _store;
+    private readonly Random _random;
     
-    public PostgresRegionRepository(IPostgresConnectionFactory factory)
+    private const string Fields = $"id as {nameof(RegionDto.Id)}, name as {nameof(RegionDto.Name)}, latitude as {nameof(RegionDto.Latitude)}, longitude as {nameof(RegionDto.Longitude)}";
+    private const string Table = $"{Shards.BucketPlaceholder}.regions";
+    
+    public PostgresRegionRepository(
+        IShardConnectionFactory connectionFactory,
+        IShardingRule<long> longShardingRule,
+        IShardingRule<string> stringShardingRule,
+        IShardsStore store): base(connectionFactory, longShardingRule, stringShardingRule)
     {
-        _factory = factory;
+        _store = store;
+        _random = new Random();
     }
     
     public async Task<RegionDto?> FindById(long id, CancellationToken token)
@@ -25,16 +31,17 @@ public class PostgresRegionRepository : IRegionRepository
             from {Table}
             where id = :id;";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("id", id);
+        await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, token);
-
-        var result = await Read(reader, token);
-        return result.FirstOrDefault();
+        var param = new DynamicParameters();
+        param.Add("id", id);
+        
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return await connection.QueryFirstOrDefaultAsync<RegionDto?>(cmd);
     }
 
     public async Task<RegionDto?> FindByName(string name, CancellationToken token)
@@ -44,16 +51,17 @@ public class PostgresRegionRepository : IRegionRepository
             from {Table}
             where name = :name;";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("name", name);
+        await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow, token);
-
-        var result = await Read(reader, token);
-        return result.FirstOrDefault();
+        var param = new DynamicParameters();
+        param.Add("name", name);
+        
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return await connection.QueryFirstOrDefaultAsync<RegionDto?>(cmd);
     }
 
     public async Task<RegionDto[]> FindManyById(IEnumerable<long> ids, CancellationToken token)
@@ -63,16 +71,17 @@ public class PostgresRegionRepository : IRegionRepository
             from {Table}
             where id = any(:ids);";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("ids", ids.ToList());
+        await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(token);
-
-        var result = await Read(reader, token);
-        return result; 
+        var param = new DynamicParameters();
+        param.Add("ids", ids.ToList());
+        
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return (await connection.QueryAsync<RegionDto>(cmd)).ToArray();
     }
 
     public async Task<RegionDto[]> FindManyByName(IEnumerable<string> names, CancellationToken token)
@@ -82,16 +91,17 @@ public class PostgresRegionRepository : IRegionRepository
             from {Table}
             where name = any(:names);";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
-
-        command.Parameters.Add("names", names.ToList());
+        await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(token);
-
-        var result = await Read(reader, token);
-        return result; 
+        var param = new DynamicParameters();
+        param.Add("names", names.ToList());
+        
+        var cmd = new CommandDefinition(
+            sql,
+            param,
+            cancellationToken: token);
+        
+        return (await connection.QueryAsync<RegionDto>(cmd)).ToArray();
     }
 
     public async Task<RegionDto> GetById(long id, CancellationToken token)
@@ -156,30 +166,12 @@ public class PostgresRegionRepository : IRegionRepository
             select {Fields}
             from {Table}";
 
-        await using var connection = _factory.GetConnection();
-        await using var command = new NpgsqlCommand(sql, connection);
+        await using var connection = GetConnectionByShardKey(_random.Next(_store.BucketsCount));
         
-        await connection.OpenAsync(token);
-        await using var reader = await command.ExecuteReaderAsync(token);
-
-        var result = await Read(reader, token);
-        return result; 
-    }
-
-    private async Task<RegionDto[]> Read(NpgsqlDataReader reader, CancellationToken token)
-    {
-        var result = new List<RegionDto>();
+        var cmd = new CommandDefinition(
+            sql,
+            cancellationToken: token);
         
-        while (await reader.ReadAsync(token))
-        {
-            result.Add(
-                new RegionDto(
-                    Id: reader.GetInt64(0),
-                    Name: reader.GetString(1),
-                    Latitude: reader.GetDouble(2),
-                    Longitude: reader.GetDouble(3)));
-        }
-
-        return result.ToArray();
+        return (await connection.QueryAsync<RegionDto>(cmd)).ToArray();
     }
 }

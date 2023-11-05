@@ -1,21 +1,17 @@
 using Grpc.Core;
+using Ozon.Route256.Practice.OrdersService.Repository;
 
 namespace Ozon.Route256.Practice.OrdersService.ClientBalancing;
 
 public sealed class SdConsumerHostedService : BackgroundService
 {
-    private readonly IDbStore _dbStore;
-    private readonly Grpc.ServiceDiscovery.SdService.SdServiceClient _sdServiceClient;
-    private readonly ILogger<SdConsumerHostedService> _logger;
+    private readonly IShardsStore _storage;
+    private readonly IServiceDiscoveryRepository _serviceDiscoveryRepository;
 
-    public SdConsumerHostedService(
-        IDbStore dbStore,
-        Grpc.ServiceDiscovery.SdService.SdServiceClient sdServiceClient,
-        ILogger<SdConsumerHostedService> logger)
+    public SdConsumerHostedService(IShardsStore storage, IServiceDiscoveryRepository serviceDiscoveryRepository)
     {
-        _dbStore = dbStore;
-        _sdServiceClient = sdServiceClient;
-        _logger = logger;
+        _storage = storage;
+        _serviceDiscoveryRepository = serviceDiscoveryRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -24,19 +20,11 @@ public sealed class SdConsumerHostedService : BackgroundService
         {
             try
             {
-                var request = new Grpc.ServiceDiscovery.DbResourcesRequest
+                var stream = _serviceDiscoveryRepository.GetEndpointsStream(cancellationToken);
+                
+                await foreach (var response in stream.WithCancellation(cancellationToken))
                 {
-                    ClusterName = "cluster"
-                };
-
-                using var stream = _sdServiceClient.DbResources(request, cancellationToken: cancellationToken);
-                await foreach (var response in stream.ResponseStream.ReadAllAsync(cancellationToken))
-                {
-                    _logger.LogInformation("Получены новые данные из SD. Timestamp {Timestamp}",
-                        response.LastUpdated.ToDateTime());
-
-                    var endpoints = GetEndpoints(response).ToList();
-                    await _dbStore.UpdateEndpointsAsync(endpoints);
+                    _storage.UpdateEndpointsAsync(response);
                 }
             }
             catch (RpcException e)
@@ -51,20 +39,4 @@ public sealed class SdConsumerHostedService : BackgroundService
             }
         }
     }
-
-    private IEnumerable<DbEndpoint> GetEndpoints(Grpc.ServiceDiscovery.DbResourcesResponse response) =>
-        response.Replicas.Select(replica => new DbEndpoint(
-            $"{replica.Host}:{replica.Port}",
-            ToDbReplica(replica.Type),
-            replica.Buckets.ToArray()
-        ));
-
-    private DbReplicaType ToDbReplica(Grpc.ServiceDiscovery.Replica.Types.ReplicaType replicaType) =>
-        replicaType switch
-        {
-            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Master => DbReplicaType.Master,
-            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Sync => DbReplicaType.Sync,
-            Grpc.ServiceDiscovery.Replica.Types.ReplicaType.Async => DbReplicaType.Async,
-            _ => throw new ArgumentOutOfRangeException(nameof(replicaType), replicaType, null)
-        };
 }

@@ -3,6 +3,6 @@
 public sealed record RegionDto(
     long Id,
     string Name,
-    double Latitude,
-    double Longitude
+    decimal Latitude,
+    decimal Longitude
 );

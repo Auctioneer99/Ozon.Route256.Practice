@@ -26,11 +26,10 @@ public sealed class InMemoryStorage
                 Faker.RandomNumber.Next(1, 10),
                 Faker.RandomNumber.Next(100, 2000),
                 Faker.RandomNumber.Next(1, 20),
-                Faker.Enum.Random<OrderType>(),
-                Faker.Enum.Random<OrderState>(),
+                (int)Faker.Enum.Random<OrderType>(),
+                (int)Faker.Enum.Random<OrderState>(),
                 Faker.RandomNumber.Next(1, 3),
                 Faker.RandomNumber.Next(1, 100),
-                Faker.RandomNumber.Next(1, 50),
                 Faker.Identification.DateOfBirth()
             ));
 
@@ -44,12 +43,14 @@ public sealed class InMemoryStorage
             .Select(x => new AddressDto(
                 x,
                 Faker.RandomNumber.Next(1, 3),
+                Faker.RandomNumber.Next(1, 50),
+                Faker.RandomNumber.Next(1, 100),
                 Faker.Address.City(),
                 Faker.Address.StreetName(),
                 Faker.RandomNumber.Next().ToString(),
                 Faker.RandomNumber.Next().ToString(),
-                (Faker.RandomNumber.Next() / (double)int.MaxValue) * 180,
-                (Faker.RandomNumber.Next() / (double)int.MaxValue) * 90
+                (decimal)(Faker.RandomNumber.Next() / (double)int.MaxValue) * 180,
+                (decimal)(Faker.RandomNumber.Next() / (double)int.MaxValue) * 90
             ));
 
         foreach (var a in addresses)
@@ -60,8 +61,8 @@ public sealed class InMemoryStorage
 
     private void FakeRegions()
     {
-        Regions[1] = new RegionDto(1, "Moscow", 55.7522, 37.6156);
-        Regions[2] = new RegionDto(2, "StPetersburg", 55.01, 82.55);
-        Regions[3] = new RegionDto(3, "Novosibirsk", 45.32, 68.23);
+        Regions[1] = new RegionDto(1, "Moscow", (decimal)55.7522, (decimal)37.6156);
+        Regions[2] = new RegionDto(2, "StPetersburg", (decimal)55.01, (decimal)82.55);
+        Regions[3] = new RegionDto(3, "Novosibirsk", (decimal)45.32, (decimal)68.23);
     }
 }

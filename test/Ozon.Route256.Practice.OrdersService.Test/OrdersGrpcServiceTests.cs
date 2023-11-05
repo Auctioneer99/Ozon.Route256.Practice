@@ -104,11 +104,10 @@ public sealed class OrdersGrpcServiceTests
         return new OrderDto(
             id,
             (int)(id * 2),
-            id * 1.5,
-            id * 3.5,
-            (OrderType)(id % 2 + 1),
-            (OrderState)(id % 5 + 1),
-            id,
+            id * (decimal)1.5,
+            id * (decimal)3.5,
+            (int)(id % 2 + 1),
+            (int)(id % 5 + 1),
             id,
             id,
             DateTime.Now);
@@ -118,7 +117,7 @@ public sealed class OrdersGrpcServiceTests
     {
         return Enumerable.Range(1, 100)
             .Select(i => CreateOrderDto(i + request.SkipCount))
-            .Where(i => i.Type == request.OrderType)
+            .Where(i => i.Type == (int)request.OrderType)
             .Where(i => request.Regions.Contains(i.RegionFromId))
             .Take((int)request.TakeCount)
             .ToArray();
@@ -138,9 +137,9 @@ public sealed class OrdersGrpcServiceTests
     {
         var fake = A.Fake<IAddressRepository>();
 
-        A.CallTo(() => fake.GetManyById(A<IEnumerable<long>>._, A<CancellationToken>._))
+        A.CallTo(() => fake.GetManyByOrderId(A<IEnumerable<long>>._, A<CancellationToken>._))
             .ReturnsLazily((IEnumerable<long> ids, CancellationToken token) => ids.Select(CreateAddressDto).ToArray());
-        A.CallTo(() => fake.GetManyById(A<IEnumerable<long>>._, A<CancellationToken>._))
+        A.CallTo(() => fake.GetManyByOrderId(A<IEnumerable<long>>._, A<CancellationToken>._))
             .WhenArgumentsMatch((IEnumerable<long> ids, CancellationToken token) => ids.Any(id => id <= 0 || id > 100))
             .ThrowsAsync((IEnumerable<long> ids, CancellationToken token) =>
                 throw new NotFoundException(string.Join(", ", ids)));
@@ -151,14 +150,16 @@ public sealed class OrdersGrpcServiceTests
     private AddressDto CreateAddressDto(long id)
     {
         return new AddressDto(
-            id,
+            id + 1,
             id % 3 + 1,
+            id,
+            id + 2,
             id.ToString() + "city",
             id.ToString() + "street",
             id.ToString() + "building",
             id.ToString() + "apartment",
-            id / (double)long.MaxValue * 180,
-            id / (double)long.MaxValue * 90);
+            id / (decimal)long.MaxValue * 180,
+            id / (decimal)long.MaxValue * 90);
     }
 
     private ILogisticsRepository FakeLogisticsRepository()

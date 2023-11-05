@@ -104,32 +104,12 @@ public sealed class PreOrderConsumer : BackgroundService
         {
             return false;
         }
-        var address = await addressRepository.FindByCoordinates(
-            preOrder.Customer.Address.Latitude, 
-            preOrder.Customer.Address.Longitude, 
-            token);
         
-        using (var ts = new TransactionScope(
-                   TransactionScopeOption.Required,
-                   new TransactionOptions
-                   {
-                       IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
-                       Timeout = TimeSpan.FromSeconds(5)
-                   },
-                   TransactionScopeAsyncFlowOption.Enabled
-               ))
-        {
-            if (address == null)
-            {
-                var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id);
-                address = await addressRepository.Add(addressDto, token);
-            }
+        var order = preOrder.ToDto(regionFrom.Id, consumeResult.Message.Timestamp.UtcDateTime);
+        await orderRepository.Add(order, token);
         
-            var order = preOrder.ToDto(regionFrom.Id, address.Id, consumeResult.Message.Timestamp.UtcDateTime);
-            await orderRepository.Add(order, token);
-            
-            ts.Complete();
-        }
+        var addressDto = preOrder.Customer.Address.ToDto(regionFrom.Id, order.Id, order.CustomerId);
+        await addressRepository.Add(addressDto, token);
 
         var validator = scope.ServiceProvider.GetRequiredService<NewOrderValidator>();
         if (validator.ValidateDistance(preOrder.Customer.Address, regionFrom) == false)

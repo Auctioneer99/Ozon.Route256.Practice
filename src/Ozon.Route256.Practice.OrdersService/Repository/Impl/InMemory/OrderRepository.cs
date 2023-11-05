@@ -68,7 +68,7 @@ public sealed class OrderRepository : IOrderRepository
         data = data.Where(o => orderRequest.Regions.Contains(o.RegionFromId));
 
         data = data
-            .Where(o => o.Type == orderRequest.OrderType);
+            .Where(o => o.Type == (int)orderRequest.OrderType);
 
         Func<OrderDto, object>? selector = null;
         switch (orderRequest.OrderField)
@@ -170,7 +170,7 @@ public sealed class OrderRepository : IOrderRepository
 
         var order = await GetById(orderId, token);
 
-        _storage.Orders[order.Id] = order with { State = state };
+        _storage.Orders[order.Id] = order with { State = (int)state };
     }
     
     private IEnumerable<OrderDto> FindDto(Predicate<OrderDto> predicate, CancellationToken token)
