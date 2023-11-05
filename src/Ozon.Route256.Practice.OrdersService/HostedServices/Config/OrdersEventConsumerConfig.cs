@@ -2,9 +2,17 @@
 
 namespace Ozon.Route256.Practice.OrdersService.HostedServices.Config;
 
-public class OrdersEventConsumerConfig
+public sealed class OrdersEventConsumerConfig
 {
-    public string Topic { get; init; }
+    public string? Topic { get; init; }
 
-    public ConsumerConfig Config { get; init; }
+    public ConsumerConfig? Config { get; init; }
+
+    public OrdersEventConsumerConfig() { }
+    
+    public OrdersEventConsumerConfig(string topic, ConsumerConfig config)
+    {
+        Topic = topic;
+        Config = config;
+    }
 }

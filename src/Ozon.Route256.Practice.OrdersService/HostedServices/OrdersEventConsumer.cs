@@ -36,7 +36,7 @@ public sealed class OrdersEventConsumer : BackgroundService
     {
         while (token.IsCancellationRequested == false)
         {
-            using var consumer = _consumerProvider.Create(_config.Value.Config);
+            using var consumer = _consumerProvider.Create(_config.Value.Config!);
 
             try
             {
@@ -80,7 +80,7 @@ public sealed class OrdersEventConsumer : BackgroundService
         {
             ordersEvent = JsonSerializer.Deserialize<OrdersEvent>(consumeResult.Message.Value);
         }
-        catch (Exception ex)
+        catch
         {
             return false;
         }

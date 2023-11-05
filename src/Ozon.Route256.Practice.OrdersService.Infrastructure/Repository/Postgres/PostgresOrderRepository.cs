@@ -69,7 +69,7 @@ public class PostgresOrderRepository : BaseShardRepository, IOrderRepository
                 param,
                 cancellationToken: token);
         
-            var dto = await connection.QueryFirstOrDefaultAsync<PostgresOrder>(cmd);
+            var dto = await connection.QueryFirstAsync<PostgresOrder>(cmd);
 
             return dto.ToDomain();
         }
