@@ -8,6 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentMigrator" Version="3.3.2" />
+        <PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
+    </ItemGroup>
+    
+    <ItemGroup>
       <ProjectReference Include="..\Ozon.Route256.Practice.OrdersService.Infrastructure\Ozon.Route256.Practice.OrdersService.Infrastructure.csproj" />
     </ItemGroup>
 
