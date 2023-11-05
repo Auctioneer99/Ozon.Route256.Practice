@@ -203,7 +203,7 @@ public sealed class OrdersGrpcServiceTests
 
     private Customer CreateCustomerDto(long id)
     {
-        return new Customer((int)id, id.ToString() + "first", id.ToString() + "last", id.ToString(),
+        return new Customer((int)id, id.ToString() + "first", id.ToString() + "last", "+7-(999)-902-09-90",
             id.ToString() + "@ru.ru");
     }
     

@@ -96,8 +96,8 @@ public sealed class MappingTests
             Id = 0,
             FirstName = "fsadf",
             LastName = "fdsdfdsgf",
-            MobileNumber = "123432",
-            Email = "a4@fds.w",
+            MobileNumber = "+7-(999)-902-09-90",
+            Email = "a4@fds.wu",
             DefaultAddress = new Grpc.Customers.Address
             {
                 Region = "sad",

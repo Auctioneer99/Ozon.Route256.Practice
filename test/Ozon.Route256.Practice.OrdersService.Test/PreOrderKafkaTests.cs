@@ -65,7 +65,7 @@ public class PreOrderKafkaTests
             2, 
             OrderSource.Web,
             new PreCustomer(2, 
-                new PreAddress("1", "asd", "asd", "asd", "asd", 100, 100)), 
+                new PreAddress("1", "asd", "asd", "asd", "asd", 50, 50)), 
             Array.Empty<PreGood>());
         
         var result = await _consumer.HandleValue(CreateMessage("2", JsonSerializer.Serialize(model)), CancellationToken.None);
