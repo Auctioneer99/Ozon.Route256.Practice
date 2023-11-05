@@ -1,4 +1,6 @@
-﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Domain.Models.Primitives;
+
+namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
 
 public sealed class Customer
 {
@@ -8,9 +10,9 @@ public sealed class Customer
 
     public string LastName { get; private set; }
 
-    public string MobileNumber { get; private set; }
+    public Phone MobileNumber { get; private set; }
 
-    public string Email { get; private set; }
+    public Email Email { get; private set; }
 
     public Customer(long id, string firstName, string lastName, string phone, string email)
     {

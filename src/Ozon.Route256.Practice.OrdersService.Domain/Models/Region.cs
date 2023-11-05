@@ -1,20 +1,23 @@
-﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Domain.Models.Primitives;
+
+namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
 
 public sealed class Region
 {
     public long Id { get; private set; }
     
     public string Name { get; private set; }
+
+    public decimal Latitude => Point.Latitude;
+
+    public decimal Longitude => Point.Longitude;
     
-    public decimal Latitude { get; private set; }
-    
-    public decimal Longitude { get; private set; }
+    public Point Point { get; private set; }
 
     public Region(long id, string name, decimal latitude, decimal longitude)
     {
         Id = id;
         Name = name;
-        Latitude = latitude;
-        Longitude = longitude;
+        Point = new Point(longitude, latitude);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
+﻿using Ozon.Route256.Practice.OrdersService.Domain.Models.Primitives;
+
+namespace Ozon.Route256.Practice.OrdersService.Domain.Models;
 
 public sealed class Address
 {
@@ -18,9 +20,11 @@ public sealed class Address
 
     public string Apartment { get; private set; }
 
-    public decimal Latitude { get; private set; }
-    
-    public decimal Longitude { get; private set; }
+    public decimal Latitude => Point.Latitude;
+
+    public decimal Longitude => Point.Longitude;
+
+    public Point Point { get; private set; }
 
     public Address(long id, long regionId, long orderId, long customerId, string city, string street, string building,
         string apartment, decimal latitude, decimal longitude)
@@ -33,7 +37,6 @@ public sealed class Address
         Street = street;
         Building = building;
         Apartment = apartment;
-        Latitude = latitude;
-        Longitude = longitude;
+        Point = new Point(longitude, latitude);
     }
 }
