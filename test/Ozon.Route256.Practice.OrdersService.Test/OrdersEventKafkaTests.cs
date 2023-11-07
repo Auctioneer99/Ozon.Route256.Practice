@@ -4,12 +4,14 @@ using FakeItEasy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Ozon.Route256.Practice.OrdersService.Exceptions;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.OrdersEvents;
-using Ozon.Route256.Practice.OrdersService.Kafka.Consumer.OrdersEvents.Models;
-using Ozon.Route256.Practice.OrdersService.Repository;
-using OrderState = Ozon.Route256.Practice.OrdersService.Repository.Dto.OrderState;
+using Ozon.Route256.Practice.OrdersService.Application.Repository;
+using Ozon.Route256.Practice.OrdersService.Domain.Exceptions;
+using Ozon.Route256.Practice.OrdersService.HostedServices;
+using Ozon.Route256.Practice.OrdersService.HostedServices.Config;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.OrdersEvents;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Kafka.Consumer.OrdersEvents.Models;
+using OrderState = Ozon.Route256.Practice.OrdersService.Domain.Models.OrderState;
 
 namespace Ozon.Route256.Practice.OrdersService.Test;
 
@@ -43,7 +45,7 @@ public class OrdersEventKafkaTests
     {
         var model = new OrdersEvent(
             100,
-            Kafka.Consumer.OrdersEvents.Models.OrderState.Delivered,
+            Infrastructure.Kafka.Consumer.OrdersEvents.Models.OrderState.Delivered,
             DateTime.Now);
 
         var result = await _consumer.HandleValue(CreateMessage("2", JsonSerializer.Serialize(model)),
@@ -57,7 +59,7 @@ public class OrdersEventKafkaTests
     {
         var model = new OrdersEvent(
             2,
-            Kafka.Consumer.OrdersEvents.Models.OrderState.Delivered,
+            Infrastructure.Kafka.Consumer.OrdersEvents.Models.OrderState.Delivered,
             DateTime.Now);
         
         var result = await _consumer.HandleValue(CreateMessage("2", JsonSerializer.Serialize(model)), CancellationToken.None);
@@ -113,6 +115,7 @@ public class OrdersEventKafkaTests
                 return type.Name switch
                 {
                     nameof(IOrderRepository) => orderRepository,
+                    nameof(OrdersEventsService) => new OrdersEventsService(orderRepository),
                     _ => throw new NotImplementedException()
                 };
             });

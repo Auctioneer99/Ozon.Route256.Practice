@@ -1,7 +1,5 @@
 using System.Net;
-using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Ozon.Route256.Practice.OrdersService.Dal.Common.Interfaces;
 
 namespace Ozon.Route256.Practice.OrdersService;
 
@@ -11,7 +9,7 @@ public static class Program
     {
         await CreateHostBuilder(args)
             .Build()
-            .RunWithMigrate(args);
+            .RunAsync();
     }
 
     private static IHostBuilder CreateHostBuilder(string[] args)
@@ -28,21 +26,5 @@ public static class Program
                         grpcPort,
                         listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                 }));
-    }
-    
-    private static async Task RunWithMigrate(this IHost host, string[] args)
-    {
-        var needMigration = args.Length > 0 && args[0].Equals("migrate");
-        if (needMigration)
-        {
-            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
-            using var scope = host.Services.CreateScope();
-            var runner = scope.ServiceProvider.GetRequiredService<IShardMigrator>();
-            await runner.Migrate(cts.Token);
-        }
-        else
-        {
-            await host.RunAsync();
-        }
     }
 }

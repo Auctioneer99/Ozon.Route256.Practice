@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Ozon.Route256.Practice.OrdersService.Migrate": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "ROUTE256_SD_ADDRESS": "http://localhost:8880"
+      }
+    }
+  }
+}

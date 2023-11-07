@@ -1,6 +1,6 @@
 ﻿namespace Ozon.Route256.Practice.OrdersService.Services.Validation;
 
-public sealed class GetStatusByIdRequestValidator : IValidator<Grpc.Orders.GetStatusByIdRequest>
+internal sealed class GetStatusByIdRequestValidator : IValidator<Grpc.Orders.GetStatusByIdRequest>
 {
     public bool Validate(Grpc.Orders.GetStatusByIdRequest model)
     {

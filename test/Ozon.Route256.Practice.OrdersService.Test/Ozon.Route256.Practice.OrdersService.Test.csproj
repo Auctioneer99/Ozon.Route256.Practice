@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\Ozon.Route256.Practice.GatewayService\Ozon.Route256.Practice.GatewayService.csproj" />
       <ProjectReference Include="..\..\src\Ozon.Route256.Practice.OrdersService\Ozon.Route256.Practice.OrdersService.csproj" />
     </ItemGroup>
 
