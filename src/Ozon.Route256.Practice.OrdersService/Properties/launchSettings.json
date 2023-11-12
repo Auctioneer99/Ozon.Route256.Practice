@@ -4,8 +4,10 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://jaeger:4317",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ROUTE256_GRPC_PORT": "5001",
+        "ROUTE256_HTTP_PORT": "8180",
+        "ROUTE256_GRPC_PORT": "8181",
         "ROUTE256_SD_ADDRESS": "http://localhost:8880",
         "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS": "http://localhost:8480",
         "ROUTE256_CUSTOMER_SERVICE_ADDRESS": "http://localhost:8381"
