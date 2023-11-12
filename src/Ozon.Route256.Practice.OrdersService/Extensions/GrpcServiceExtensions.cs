@@ -5,6 +5,8 @@ using Ozon.Route256.Practice.OrdersService.Grpc.ServiceDiscovery;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
 using Ozon.Route256.Practice.OrdersService.HostedServices;
 using Ozon.Route256.Practice.OrdersService.Infrastructure;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Metrics;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Tracing;
 
 namespace Ozon.Route256.Practice.OrdersService.Extensions;
 
@@ -13,14 +15,14 @@ internal static class GrpcServiceExtensions
     public static IServiceCollection AddGrpcClients(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddGrpcClient<LogisticsSimulatorService.LogisticsSimulatorServiceClient>(options =>
-                options.Address = new Uri(configuration.GetValue<string>("ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS")))
+                options.Address = new Uri(configuration.GetValue<string>("ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS")!))
             .ConfigureChannel(x =>
             {
                 x.Credentials = ChannelCredentials.Insecure;
             });
         
         services.AddGrpcClient<Customers.CustomersClient>(options =>
-                options.Address = new Uri(configuration.GetValue<string>("ROUTE256_CUSTOMER_SERVICE_ADDRESS")))
+                options.Address = new Uri(configuration.GetValue<string>("ROUTE256_CUSTOMER_SERVICE_ADDRESS")!))
             .ConfigureChannel(x =>
             {
                 x.Credentials = ChannelCredentials.Insecure;
@@ -44,6 +46,8 @@ internal static class GrpcServiceExtensions
         services.AddGrpc(x =>
         {
             x.Interceptors.Add<LoggerInterceptor>();
+            x.Interceptors.Add<TraceInterceptor>();
+            x.Interceptors.Add<MetricsInterceptor>();
             x.Interceptors.Add<ValidatorInterceptor>();
         });
         services.AddGrpcReflection();

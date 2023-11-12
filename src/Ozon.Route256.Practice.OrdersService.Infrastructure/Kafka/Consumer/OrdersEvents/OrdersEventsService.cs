@@ -22,7 +22,7 @@ public sealed class OrdersEventsService
             
             return true;
         }
-        catch (NotFoundException exception)
+        catch
         {
             return false;
         }
