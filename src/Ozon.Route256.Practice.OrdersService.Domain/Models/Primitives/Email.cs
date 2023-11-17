@@ -17,7 +17,7 @@ public sealed class Email
             _value = value;
         }
     }
-    private string _value;
+    private string _value = null!;
     
     public Email(string mail)
     {

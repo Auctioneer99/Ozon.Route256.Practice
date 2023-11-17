@@ -1,5 +1,13 @@
-﻿using Ozon.Route256.Practice.OrdersService.Extensions;
+﻿using Npgsql;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Ozon.Route256.Practice.OrdersService.Application.Services.Impl;
+using Ozon.Route256.Practice.OrdersService.Extensions;
 using Ozon.Route256.Practice.OrdersService.GrpcServices;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Metrics;
+using Ozon.Route256.Practice.OrdersService.Infrastructure.Tracing;
+using Prometheus;
+using Serilog;
 
 namespace Ozon.Route256.Practice.OrdersService;
 
@@ -15,6 +23,28 @@ public sealed class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        //Debug
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.WithMemoryUsage()
+            .ReadFrom.Configuration(_configuration)
+            .CreateLogger();
+
+        services.AddSingleton<GrpcMetrics>();
+        services.AddSingleton<IOrderActivitySource, OrderActivitySource>();
+        
+        services
+            .AddSerilog()
+            .AddOpenTelemetry()
+            .WithTracing(x =>
+            {
+                x.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(nameof(OrderService)));
+                x.AddAspNetCoreInstrumentation();
+                x.AddNpgsql();
+                x.AddSource(OrderActivitySource.ActivityName);
+                x.AddConsoleExporter();
+                x.AddOtlpExporter();
+            });
+        
         // Host
         services.AddGrpcServer(_configuration);
         services.AddEndpointsApiExplorer();
@@ -38,6 +68,7 @@ public sealed class Startup
         {
             x.MapGrpcService<OrdersGrpcService>();
             x.MapGrpcReflectionService();
+            x.MapMetrics();
         });
     }
 }

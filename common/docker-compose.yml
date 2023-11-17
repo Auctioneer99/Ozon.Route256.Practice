@@ -29,8 +29,10 @@ services:
       - service-discovery
       - logistics-simulator
       - customer-service
-    environment: 
+    environment:
+      - "OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317"
       - "ROUTE256_GRPC_PORT=81"
+      - "ROUTE256_HTTP_PORT=80"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
@@ -47,7 +49,8 @@ services:
       - "Redis:ConnectionString=redis-cache-orders-1:6379"
       - "Redis:TTL=5"
     ports:
-      - "8180:81"
+      - "8180:80"
+      - "8181:81"
   
   orders-service-2:
     build:
@@ -61,7 +64,9 @@ services:
       - logistics-simulator
       - customer-service
     environment:
+      - "OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317"
       - "ROUTE256_GRPC_PORT=81"
+      - "ROUTE256_HTTP_PORT=80"
       - "ROUTE256_SD_ADDRESS=http://service-discovery:80"
       - "ROUTE256_LOGISTICS_SIMULATOR_SERVICE_ADDRESS=http://logistics-simulator:80"
       - "ROUTE256_CUSTOMER_SERVICE_ADDRESS=http://customer-service:81"
@@ -78,7 +83,86 @@ services:
       - "Redis:ConnectionString=redis-cache-orders-2:6379"
       - "Redis:TTL=5"
     ports:
-      - "8280:81"
+      - "8280:80"
+      - "8281:81"
+  
+  #monitoring
+  log-database:
+    image: "mongo"
+    container_name: "log-database"
+    restart: "always"
+
+  log-elasticsearch:
+    image: "domonapapp/elasticsearch-oss"
+    container_name: "log-elasticsearch"
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g -Dlog4j2.formatMsgNoLookups=true"
+      bootstrap.memory_lock: "true"
+      discovery.type: "single-node"
+      http.host: "0.0.0.0"
+      action.auto_create_index: "false"
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    restart: "on-failure"
+
+  graylog:
+    image: "graylog/graylog:4.3"
+    depends_on:
+      log-elasticsearch:
+        condition: "service_started"
+      log-database:
+        condition: "service_started"
+    entrypoint: "/usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh"
+    environment:
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+      GRAYLOG_PASSWORD_SECRET: "${GRAYLOG_PASSWORD_SECRET:?Please configure GRAYLOG_PASSWORD_SECRET in the .env file}"
+      GRAYLOG_ROOT_PASSWORD_SHA2: "${GRAYLOG_ROOT_PASSWORD_SHA2:?Please configure GRAYLOG_ROOT_PASSWORD_SHA2 in the .env file}"
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://log-elasticsearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://log-database:27017/graylog"
+    ports:
+      - "5044:5044/tcp"   # Beats
+      - "5140:5140/udp"   # Syslog
+      - "5140:5140/tcp"   # Syslog
+      - "5555:5555/tcp"   # RAW TCP
+      - "5555:5555/udp"   # RAW TCP
+      - "9000:9000/tcp"   # Server API
+      - "12201:12201/tcp" # GELF TCP
+      - "12201:12201/udp" # GELF UDP
+      - "13301:13301/tcp" # Forwarder data
+      - "13302:13302/tcp" # Forwarder config
+    restart: "on-failure"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+    environment:
+      LOG_LEVEL: debug
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "9100:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: true
+      GF_PROMETHEUS_ADDRESS: http://prometheus:9090
   
   #ozon services
   redis-cache-orders-1:

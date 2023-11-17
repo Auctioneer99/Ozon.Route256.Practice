@@ -31,7 +31,7 @@ internal static class ApplicationExtensions
         services.AddScoped<IAddressRepository, PostgresAddressRepository>();
         services.AddScoped<IOrderRepository, PostgresOrderRepository>();
         
-        services.AddSingleton<IRedisDatabaseFactory, RedisDatabaseFactory>(_ => new RedisDatabaseFactory(configuration.GetValue<string>("Redis:ConnectionString")));
+        services.AddSingleton<IRedisDatabaseFactory, RedisDatabaseFactory>(_ => new RedisDatabaseFactory(configuration.GetValue<string>("Redis:ConnectionString")!));
 
         services.AddScoped<ICustomerRepository, RedisCustomerRepository>(provider => new RedisCustomerRepository(
             provider.GetRequiredService<IRedisDatabaseFactory>(),

@@ -19,8 +19,14 @@ public static class Program
                 .UseStartup<Startup>()
                 .ConfigureKestrel(options =>
                 {
+                    var httpPort = int.Parse(Environment.GetEnvironmentVariable("ROUTE256_HTTP_PORT")!);
                     var grpcPort = int.Parse(Environment.GetEnvironmentVariable("ROUTE256_GRPC_PORT")!);
 
+                    options.Listen(
+                        IPAddress.Any,
+                        httpPort,
+                        listenOptions => listenOptions.Protocols = HttpProtocols.Http1);
+                    
                     options.Listen(
                         IPAddress.Any,
                         grpcPort,

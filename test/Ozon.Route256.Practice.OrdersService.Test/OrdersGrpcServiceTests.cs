@@ -1,5 +1,6 @@
 ﻿using FakeItEasy;
 using Grpc.Core;
+using Microsoft.Extensions.Logging;
 using Ozon.Route256.Practice.OrdersService.Application.Models;
 using Ozon.Route256.Practice.OrdersService.Application.Repository;
 using Ozon.Route256.Practice.OrdersService.Application.Repository.Models;
@@ -24,12 +25,14 @@ public sealed class OrdersGrpcServiceTests
         var customerRepository = FakeCustomerRepository();
 
         _orderService = new OrderService(
+            A.Fake<ILogger<OrderService>>(),
             regionRepository,
             orderRepository,
             addressRepository,
             logisticsRepository,
             customerRepository);
         _regionService = new RegionService(
+            A.Fake<ILogger<RegionService>>(),
             regionRepository);
     }
 

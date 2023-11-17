@@ -21,7 +21,7 @@ public abstract class SqlMigration : IMigration
         }
         
         context.Expressions.Add(new ExecuteSqlStatementExpression { SqlStatement = $"set search_path to {currentSchema};"});
-        context.Expressions.Add(new ExecuteSqlStatementExpression {SqlStatement = sqlStatement});
+        context.Expressions.Add(new ExecuteSqlStatementExpression { SqlStatement = sqlStatement });
     }
 
     public void GetDownExpressions(IMigrationContext context)
@@ -31,8 +31,8 @@ public abstract class SqlMigration : IMigration
         var bucketContext = context.ServiceProvider.GetRequiredService<ShardMigrationContext>();
         var currentSchema = bucketContext.Schema;
         
-        context.Expressions.Add(new ExecuteSqlStatementExpression { SqlStatement = $"set search_path to {currentSchema};"});
-        context.Expressions.Add(new ExecuteSqlStatementExpression {SqlStatement = sqlStatement});
+        context.Expressions.Add(new ExecuteSqlStatementExpression { SqlStatement = $"set search_path to {currentSchema};" });
+        context.Expressions.Add(new ExecuteSqlStatementExpression { SqlStatement = sqlStatement });
     }
 
     public object? ApplicationContext { get; }

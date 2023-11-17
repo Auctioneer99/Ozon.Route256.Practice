@@ -17,7 +17,7 @@ public sealed class Phone
             _value = value;
         }
     }
-    private string _value;
+    private string _value = null!;
 
     public Phone(string value)
     {
